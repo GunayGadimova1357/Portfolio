@@ -1,7 +1,10 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import type { RefObject } from "react";
 import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   siCss,
   siCplusplus,
@@ -14,6 +17,10 @@ import {
   siPython,
   siReact,
 } from "simple-icons";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 type TechnologyItem = {
   name: string;
@@ -97,7 +104,7 @@ const TECHNOLOGIES: TechnologyItem[] = [
   },
   {
     name: "Next.js",
-    href: "https://github.com/GunayGadimova1357/nextjs",
+    href: "https://github.com/GunayGadimova1357/Nextjs",
     simpleIcons: [siNextdotjs],
   },
   {
@@ -114,17 +121,62 @@ type AboutBioPanelProps = {
 };
 
 export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
+  const stackRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const stack = stackRef.current;
+    if (!stack || intro) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        "[data-stack-reveal]",
+        { autoAlpha: 0, y: 28 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.11,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: stack,
+            start: "top 78%",
+            once: true,
+          },
+        },
+      );
+
+      gsap.fromTo(
+        "[data-tech-chip]",
+        { autoAlpha: 0, y: 20 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.55,
+          stagger: 0.04,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: stack,
+            start: "top 70%",
+            once: true,
+          },
+        },
+      );
+    }, stack);
+
+    return () => ctx.revert();
+  }, [intro]);
+
   return (
     <section
       ref={panelRef}
       className={[
-        "relative border border-white/8 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.07),transparent_34%),linear-gradient(180deg,#101418_0%,#0b0f13_48%,#090c10_100%)] text-[#eef2f1]",
+        "relative border border-white/10 bg-[radial-gradient(circle_at_18%_0%,rgba(255,255,255,0.08),transparent_34%),radial-gradient(circle_at_82%_8%,rgba(255,255,255,0.05),transparent_30%),linear-gradient(180deg,#121212_0%,#0d0d0d_50%,#080808_100%)] text-[#eef2f1]",
         intro
           ? "min-h-screen overflow-hidden rounded-t-[3.5rem] will-change-transform"
           : "min-h-[140vh]",
       ].join(" ")}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(146,170,158,0.14),transparent_24%),radial-gradient(circle_at_84%_0%,rgba(214,223,218,0.08),transparent_28%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_20%,rgba(255,255,255,0.08),transparent_26%),radial-gradient(circle_at_86%_4%,rgba(210,210,210,0.06),transparent_30%)]" />
       <div className="absolute inset-x-0 top-0 h-px bg-white/10" />
 
       <div className="relative mx-auto flex w-full max-w-[96rem] flex-col gap-10 px-6 md:px-12">
@@ -146,7 +198,7 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
       <div className="w-full md:justify-self-end">
         <div className="relative h-[18rem] w-full max-w-[44rem] overflow-hidden rounded-[2rem] border border-white/10 bg-white/4 shadow-[0_24px_80px_rgba(0,0,0,0.32)] md:h-[26rem]">
           <Image
-            src="/lilyblooming.gif"
+            src="/saturn.jpg"
             alt="Blooming lily"
             fill
             unoptimized
@@ -161,17 +213,26 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
 ) : null}
 
         {!intro ? (
-          <div className="border-t border-white/8 py-18 md:py-24">
+          <div ref={stackRef} className="border-t border-white/8 py-18 md:py-24">
             <div className="space-y-12">
               <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-                <p className="text-xs uppercase tracking-[0.35em] text-white/38">
+                <p
+                  data-stack-reveal
+                  className="text-xs uppercase tracking-[0.35em] text-white/38"
+                >
                   Stack
                 </p>
-                <p className="mt-5 max-w-2xl text-[clamp(2.4rem,5vw,5rem)] font-light leading-[0.95] tracking-[-0.07em] text-white/96">
+                <p
+                  data-stack-reveal
+                  className="mt-5 max-w-2xl text-[clamp(2.4rem,5vw,5rem)] font-light leading-[0.95] tracking-[-0.07em] text-white/96"
+                >
                   Technologies I use across interface, motion and product
                   systems.
                 </p>
-                <p className="mt-5 max-w-xl text-base leading-7 text-white/60 md:text-lg">
+                <p
+                  data-stack-reveal
+                  className="mt-5 max-w-xl text-base leading-7 text-white/60 md:text-lg"
+                >
                   Tap any item to open the GitHub page.
                 </p>
               </div>
@@ -183,6 +244,7 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
                     href={technology.href}
                     target="_blank"
                     rel="noreferrer"
+                    data-tech-chip
                     className="group inline-flex min-w-[12rem] items-center justify-center gap-3 rounded-full border border-white/8 bg-white/[0.04] px-4 py-3 text-center transition-colors duration-300 hover:border-white/18 hover:bg-white/[0.07]"
                   >
                     <div className="flex h-9 min-w-9 items-center justify-center gap-1 rounded-full bg-white/[0.05] px-2 text-sm font-medium tracking-[-0.04em] text-white">

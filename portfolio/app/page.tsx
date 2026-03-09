@@ -1,5 +1,5 @@
-import { SpaceSections } from '@/components/ui/SpaceSections';
+import { Sections } from '@/components/ui/Sections';
 
 export default function Home() {
-  return <SpaceSections />;
+  return <Sections />;
 }

@@ -1,28 +1,26 @@
 "use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 const Footer = () => {
-  // Состояние для магнитной анимации кнопки
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  // Motion values для магнитной анимации кнопки без лишних ререндеров
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const x = useSpring(rawX, { stiffness: 150, damping: 15, mass: 0.1 });
+  const y = useSpring(rawY, { stiffness: 150, damping: 15, mass: 0.1 });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { clientX, clientY, currentTarget } = e;
-    // Находим центр кнопки
     const { width, height, left, top } = currentTarget.getBoundingClientRect();
-    const centerX = left + width / 2;
-    const centerY = top + height / 2;
+    const factor = 0.35;
 
-    // Рассчитываем дистанцию от курсора до центра (делим на 3 для мягкости)
-    const x = (clientX - centerX) * 0.35;
-    const y = (clientY - centerY) * 0.35;
-
-    setPosition({ x, y });
+    rawX.set((clientX - (left + width / 2)) * factor);
+    rawY.set((clientY - (top + height / 2)) * factor);
   };
 
   const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 });
+    rawX.set(0);
+    rawY.set(0);
   };
 
   return (
@@ -36,15 +34,15 @@ const Footer = () => {
         </div>
 
         <div className="relative h-px bg-gray-600 w-full mb-20 flex justify-end items-center">
-            <motion.div 
+              <motion.a 
+              href="/contact"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
-              animate={{ x: position.x, y: position.y }}
-              transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+              style={{ x, y }}
               className="absolute right-[15%] w-44 h-44 bg-[#F4F4F4] rounded-full flex items-center justify-center cursor-pointer text-lg font-medium shadow-xl z-10"
             >
               <span className="relative z-10 text-black">Get in touch</span>
-            </motion.div>
+            </motion.a>
         </div>
 
         <div className="flex flex-wrap gap-4 mb-32">

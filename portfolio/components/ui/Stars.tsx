@@ -52,6 +52,7 @@ type StarsProps = {
 export function Stars({ opacity = 0.4 }: StarsProps) {
   const meshRef = useRef<THREE.Points>(null);
   const materialRef = useRef<THREE.PointsMaterial>(null);
+  const timeRef = useRef(0);
 
   useEffect(() => {
     if (materialRef.current) {
@@ -59,11 +60,14 @@ export function Stars({ opacity = 0.4 }: StarsProps) {
     }
   }, [opacity]);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (!meshRef.current || !materialRef.current) return;
+    const positionAttr = meshRef.current.geometry.attributes.position;
+    if (!positionAttr) return;
 
-    const time = state.clock.getElapsedTime();
-    const pos = meshRef.current.geometry.attributes.position.array as Float32Array;
+    timeRef.current += delta;
+    const time = timeRef.current;
+    const pos = positionAttr.array as Float32Array;
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const i3 = i * 3;
@@ -79,10 +83,12 @@ export function Stars({ opacity = 0.4 }: StarsProps) {
         Math.sin(time * 0.18 + x * 0.4 + particles.randomness[i] * Math.PI) * 0.035;
     }
 
-    meshRef.current.geometry.attributes.position.needsUpdate = true;
+    positionAttr.needsUpdate = true;
 
-    meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, state.mouse.y * 0.025, 0.03);
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, state.mouse.x * 0.04, 0.03);
+    const mouseY = state?.mouse?.y ?? 0;
+    const mouseX = state?.mouse?.x ?? 0;
+    meshRef.current.rotation.x = THREE.MathUtils.lerp(meshRef.current.rotation.x, mouseY * 0.025, 0.03);
+    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, mouseX * 0.04, 0.03);
     materialRef.current.opacity = THREE.MathUtils.lerp(materialRef.current.opacity, opacity, 0.08);
   });
 
