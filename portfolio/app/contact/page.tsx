@@ -6,6 +6,7 @@ import { useLayoutEffect, useRef } from "react";
 import type { Mesh } from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { FlipWords } from "@/components/ui/flip-words";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -30,6 +31,7 @@ function RotatingSphere() {
 
 export default function ContactPage() {
   const sectionRef = useRef<HTMLElement>(null);
+  const words = ["build", "design", "improve"];
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -90,17 +92,19 @@ export default function ContactPage() {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-3xl text-center md:mx-0 md:max-w-xl md:text-left">
-        <p
-          data-contact-reveal
-          className="text-xs uppercase tracking-[0.35em] text-white/55"
-        >
-          Contact
+        <p data-contact-reveal className="text-s uppercase text-white/55">
+          Have a vision?
         </p>
         <h1
           data-contact-reveal
-          className="mt-4 text-4xl font-light tracking-[-0.04em] md:text-6xl"
+          className="mt-4 text-4xl font-light tracking-[-0.04em] md:text-6xl text-white"
         >
-          Let&apos;s work together.
+          Let&apos;s
+          <FlipWords
+            words={words}
+            className="px-3 text-white dark:text-white"
+          />
+          it together.
         </h1>
         <p
           data-contact-reveal

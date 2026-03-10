@@ -66,10 +66,6 @@ const Footer = () => {
               <p className="mb-2 text-gray-500 text-[10px]">Version</p>
               <p className="text-white">2026 © Edition</p>
             </div>
-            <div>
-              {/* <p className="mb-2 text-gray-500 text-[10px]">Local Time</p>
-              <p className="text-white">03:07 PM CET</p> */}
-            </div>
           </div>
 
           <div className="w-full md:w-auto text-right">

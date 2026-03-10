@@ -1,8 +1,9 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
 import Image from "next/image";
+import Marquee from "react-fast-marquee";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -122,6 +123,19 @@ type AboutBioPanelProps = {
 
 export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
   const stackRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [activeTechnology, setActiveTechnology] = useState<string | null>(null);
+  const technologyRows = useMemo(
+    () =>
+      TECHNOLOGIES.reduce<[TechnologyItem[], TechnologyItem[]]>(
+        (rows, technology, index) => {
+          rows[index % 2].push(technology);
+          return rows;
+        },
+        [[], []],
+      ),
+    [],
+  );
 
   useLayoutEffect(() => {
     const stack = stackRef.current;
@@ -165,6 +179,56 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
 
     return () => ctx.revert();
   }, [intro]);
+
+  const handleTechnologyClick = (technologyName: string) => {
+    setActiveTechnology((current) =>
+      current === technologyName ? null : technologyName,
+    );
+    setIsPaused((current) => !current);
+  };
+
+  const renderTechnologyChip = (technology: TechnologyItem) => {
+    const isActive = activeTechnology === technology.name;
+
+    return (
+      <button
+        key={technology.name}
+        type="button"
+        data-tech-chip
+        onClick={() => handleTechnologyClick(technology.name)}
+        className={[
+          "group inline-flex min-w-[12rem] items-center justify-center gap-3 rounded-full border px-4 py-3 text-center transition-all duration-300",
+          isActive
+            ? "border-white/26 bg-white/[0.12] shadow-[0_12px_40px_rgba(255,255,255,0.08)]"
+            : "border-white/8 bg-white/[0.04] hover:border-white/18 hover:bg-white/[0.07]",
+        ].join(" ")}
+        aria-pressed={isActive}
+      >
+        <div className="flex h-9 min-w-9 items-center justify-center gap-1 rounded-full bg-white/[0.05] px-2 text-sm font-medium tracking-[-0.04em] text-white">
+          {technology.simpleIcons?.length ? (
+            technology.simpleIcons.map((icon) => (
+              <svg
+                key={`${technology.name}-${icon.title}`}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-4 w-4"
+                fill={`#${icon.hex}`}
+              >
+                <path d={icon.path} />
+              </svg>
+            ))
+          ) : (
+            <span style={{ color: technology.color ?? "#ffffff" }}>
+              {technology.fallback}
+            </span>
+          )}
+        </div>
+        <span className="text-sm text-white/88 transition-colors duration-300 group-hover:text-white">
+          {technology.name}
+        </span>
+      </button>
+    );
+  };
 
   return (
     <section
@@ -233,44 +297,52 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
                   data-stack-reveal
                   className="mt-5 max-w-xl text-base leading-7 text-white/60 md:text-lg"
                 >
-                  Tap any item to open the GitHub page.
+                  Click any technology to learn more about my experience with it. 
                 </p>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-3">
-                {TECHNOLOGIES.map((technology) => (
+              <div className="space-y-4" data-stack-reveal>
+                {technologyRows.map((row, index) => (
+                  <div
+                    key={`technology-row-${index + 1}`}
+                    className="overflow-hidden py-3"
+                  >
+                    <Marquee
+                      autoFill
+                      pauseOnHover={false}
+                      speed={index === 0 ? 34 : 28}
+                      direction={index === 0 ? "left" : "right"}
+                      play={!isPaused}
+                      gradient={false}
+                    >
+                      <div className="flex items-center gap-3 px-1">
+                        {row.map(renderTechnologyChip)}
+                      </div>
+                    </Marquee>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mx-auto flex max-w-xl flex-col items-center gap-3 text-center">
+                <p className="text-sm text-white/52">
+                  {isPaused && activeTechnology
+                    ? `${activeTechnology} selected. Motion is paused.`
+                    : "The rows move continuously until you pause them."}
+                </p>
+                {activeTechnology ? (
                   <a
-                    key={technology.name}
-                    href={technology.href}
+                    href={
+                      TECHNOLOGIES.find(
+                        (technology) => technology.name === activeTechnology,
+                      )?.href
+                    }
                     target="_blank"
                     rel="noreferrer"
-                    data-tech-chip
-                    className="group inline-flex min-w-[12rem] items-center justify-center gap-3 rounded-full border border-white/8 bg-white/[0.04] px-4 py-3 text-center transition-colors duration-300 hover:border-white/18 hover:bg-white/[0.07]"
+                    className="inline-flex items-center rounded-full border border-white/12 px-4 py-2 text-sm text-white/84 transition-colors duration-300 hover:border-white/24 hover:text-white"
                   >
-                    <div className="flex h-9 min-w-9 items-center justify-center gap-1 rounded-full bg-white/[0.05] px-2 text-sm font-medium tracking-[-0.04em] text-white">
-                      {technology.simpleIcons?.length ? (
-                        technology.simpleIcons.map((icon) => (
-                          <svg
-                            key={`${technology.name}-${icon.title}`}
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                            className="h-4 w-4"
-                            fill={`#${icon.hex}`}
-                          >
-                            <path d={icon.path} />
-                          </svg>
-                        ))
-                      ) : (
-                        <span style={{ color: technology.color ?? "#ffffff" }}>
-                          {technology.fallback}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-sm text-white/88 transition-colors duration-300 group-hover:text-white">
-                      {technology.name}
-                    </span>
+                    Open {activeTechnology} on GitHub
                   </a>
-                ))}
+                ) : null}
               </div>
             </div>
           </div>
