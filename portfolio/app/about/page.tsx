@@ -1,5 +1,5 @@
-import { AboutAsciiHero } from "@/components/about/about-ascii-hero";
+import { AboutHero } from "@/components/about/about-hero";
 
 export default function AboutPage() {
-  return <AboutAsciiHero />;
+  return <AboutHero />;
 }
