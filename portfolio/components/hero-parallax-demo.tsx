@@ -10,22 +10,22 @@ export const products = [
   {
     title: "Coffee Shop",
     link: "https://github.com/GunayGadimova1357/React-Native/tree/main/coffee-shop",
-    thumbnail: "/coffeegrad.pdf",
+    thumbnail: "/coffeegrad.jpg",
   },
   {
     title: "Phantom",
     link: "https://github.com/GunayGadimova1357/React-Native/tree/main/movie-ticket",
-    thumbnail: "/moviegrad.pdf",
+    thumbnail: "/moviegrad.jpg",
   },
   {
     title: "Eclipse",
     link: "https://github.com/GunayGadimova1357/React/tree/main/project",
-    thumbnail: "/musicgrad.pdf",
+    thumbnail: "/musicgrad.jpg",
   },
   {
     title: "Coffee Shop",
     link: "https://github.com/GunayGadimova1357/React-Native/tree/main/coffee-shop",
-    thumbnail: "/coffeegrad.pdf",
+    thumbnail: "/coffeegrad.jpg",
   },
  
 ];
