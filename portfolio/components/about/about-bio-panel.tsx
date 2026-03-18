@@ -4,6 +4,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { RefObject } from "react";
 import Image from "next/image";
 import Marquee from "react-fast-marquee";
+import {useTranslations} from "next-intl";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -122,6 +123,7 @@ type AboutBioPanelProps = {
 };
 
 export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
+  const t = useTranslations("about");
   const stackRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [activeTechnology, setActiveTechnology] = useState<string | null>(null);
@@ -250,12 +252,10 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
       
       <div className="max-w-3xl">
       <p className="text-[clamp(2.8rem,7vw,6.5rem)] font-light leading-[1.1] tracking-[-0.04em]">
-  A short bio.
+  {t("introTitle")}
 </p>
         <p className="mt-6 max-w-2xl text-base leading-7 text-white/66 md:text-lg">
-          Engineering student in Mechatronics and Robotics at ASOIU,
-          expanding my technical foundation with Software Development
-          studies at STEP IT Academy.
+          {t("introDescription")}
         </p>
       </div>
 
@@ -263,7 +263,7 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
         <div className="relative h-[18rem] w-full max-w-[44rem] overflow-hidden rounded-[2rem] border border-white/10 bg-white/4 shadow-[0_24px_80px_rgba(0,0,0,0.32)] md:h-[26rem]">
           <Image
             src="/saturn.jpg"
-            alt="Blooming lily"
+            alt={t("introImageAlt")}
             fill
             unoptimized
             className="object-cover object-center"
@@ -284,20 +284,19 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
                   data-stack-reveal
                   className="text-xs uppercase tracking-[0.35em] text-white/38"
                 >
-                  Stack
+                  {t("stackEyebrow")}
                 </p>
                 <p
                   data-stack-reveal
                   className="mt-5 max-w-2xl text-[clamp(2.4rem,5vw,5rem)] font-light leading-[0.95] tracking-[-0.07em] text-white/96"
                 >
-                  Technologies I use across interface, motion and product
-                  systems.
+                  {t("stackTitle")}
                 </p>
                 <p
                   data-stack-reveal
                   className="mt-5 max-w-xl text-base leading-7 text-white/60 md:text-lg"
                 >
-                  Click any technology to learn more about my experience with it. 
+                  {t("stackDescription")}
                 </p>
               </div>
 
@@ -326,8 +325,8 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
               <div className="mx-auto flex max-w-xl flex-col items-center gap-3 text-center">
                 <p className="text-sm text-white/52">
                   {isPaused && activeTechnology
-                    ? `${activeTechnology} selected. Motion is paused.`
-                    : "The rows move continuously until you pause them."}
+                    ? t("pausedMessage", {technology: activeTechnology})
+                    : t("runningMessage")}
                 </p>
                 {activeTechnology ? (
                   <a
@@ -340,7 +339,7 @@ export function AboutBioPanel({ panelRef, intro = false }: AboutBioPanelProps) {
                     rel="noreferrer"
                     className="inline-flex items-center rounded-full border border-white/12 px-4 py-2 text-sm text-white/84 transition-colors duration-300 hover:border-white/24 hover:text-white"
                   >
-                    Open {activeTechnology} on GitHub
+                    {t("openOnGithub", {technology: activeTechnology})}
                   </a>
                 ) : null}
               </div>

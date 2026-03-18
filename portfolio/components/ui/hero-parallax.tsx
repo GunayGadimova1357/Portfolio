@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import React, { useLayoutEffect } from "react";
+import {useTranslations} from "next-intl";
 import {
   motion,
   useScroll,
@@ -22,6 +24,7 @@ export const HeroParallax = ({
     title: string;
     link: string;
     thumbnail: string;
+    alt?: string;
   }[];
 }) => {
   const firstRow = products.slice(0, 5);
@@ -156,22 +159,28 @@ export const Header = ({
 }: {
   headerRef: React.RefObject<HTMLDivElement | null>;
 }) => {
+  const t = useTranslations("projects");
+
   return (
     <div
       ref={headerRef}
       className="relative left-0 top-0 mx-auto w-full max-w-7xl px-4 py-20 md:py-40"
     >
       <h1 data-project-head className="text-2xl font-bold text-white md:text-7xl">
-        Selected Projects <br /> & Professional Work
+        {t("headerTitle")
+          .split("\n")
+          .map((line, index) => (
+            <React.Fragment key={line}>
+              {index > 0 ? <br /> : null}
+              {line}
+            </React.Fragment>
+          ))}
       </h1>
       <p
         data-project-head
         className="mt-8 max-w-2xl text-base text-neutral-200 md:text-xl"
       >
-        A curated showcase of my development projects, demonstrating expertise
-        in modern technologies, clean architecture, and professional execution.
-        Each project reflects a focus on quality, performance, and user
-        experience.
+        {t("headerDescription")}
       </p>
     </div>
   );
@@ -185,6 +194,7 @@ export const ProductCard = ({
     title: string;
     link: string;
     thumbnail: string;
+    alt?: string;
   };
   translate: MotionValue<number>;
 }) => {
@@ -203,14 +213,14 @@ export const ProductCard = ({
         href={product.link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block group-hover/product:shadow-2xl "
+        className="block h-full w-full group-hover/product:shadow-2xl "
       >
-        <img
+        <Image
           src={product.thumbnail}
-          height="600"
-          width="600"
+          fill
+          sizes="(max-width: 768px) 18rem, (max-width: 1024px) 22rem, 26rem"
           className="absolute inset-0 h-full w-full object-cover object-left-top"
-          alt={product.title}
+          alt={product.alt ?? product.title}
         />
       </a>
       <div className="pointer-events-none absolute inset-0 h-full w-full bg-black opacity-0 group-hover/product:opacity-80" />

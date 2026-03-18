@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Gunay",
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact",
+    "languageLabel": "Language",
+    "en": "EN",
+    "ru": "RU"
+  },
+  "home": {
+    "heroEyebrow": "Full-Stack Engineer",
+    "heroTitle": "I design systems from interface to infrastructure.",
+    "heroDescription": "Full-stack development focused on performance, structure and long-term scalability.",
+    "moonLabel": "The Moon",
+    "aboutTitle": "About.",
+    "aboutDescription": "I design and engineer complete digital products, not just screens, but the logic behind them. Working with Next.js, backend services, databases and system architecture, I aim to create products that feel simple on the surface and powerful underneath.",
+    "projectsEyebrow": "Selected work",
+    "projectsTitle": "Projects."
+  },
+  "projects": {
+    "headerTitle": "Selected Projects\n& Professional Work",
+    "headerDescription": "A curated showcase of my development projects, demonstrating expertise in modern technologies, clean architecture, and professional execution. Each project reflects a focus on quality, performance, and user experience.",
+    "loadingSoon": "More projects loading soon",
+    "items": {
+      "phantom": {
+        "description": "Movie discovery web app with modern UI, dynamic search, and responsive layouts optimized for smooth browsing.",
+        "alt": "Phantom project preview"
+      },
+      "eclipse": {
+        "descriptionBefore": "Interactive music streaming app, developed with ",
+        "descriptionAfter": ".",
+        "alt": "Eclipse project preview"
+      },
+      "coffeeShop": {
+        "description": "Product-style coffee app concept focused on clean visual hierarchy, clear navigation, and mobile-first usability.",
+        "alt": "Coffee Shop project preview"
+      },
+      "mazeGame": {
+        "description": "Game with immersive environments, intuitive controls, and dynamic challenges for engaging gameplay.",
+        "alt": "Maze Game project preview"
+      }
+    }
+  },
+  "contact": {
+    "eyebrow": "Have a vision?",
+    "titlePrefix": "Let's",
+    "titleSuffix": "it together.",
+    "words": {
+      "build": "build",
+      "design": "design",
+      "improve": "improve"
+    },
+    "description": "Open to product and full-stack collaboration. Reach out and I will get back to you shortly."
+  },
+  "about": {
+    "heroPrimary": "About",
+    "heroSecondary": "Developer",
+    "introTitle": "A short bio.",
+    "introDescription": "Engineering student in Mechatronics and Robotics at ASOIU, expanding my technical foundation with Software Development studies at STEP IT Academy.",
+    "introImageAlt": "Saturn-inspired visual",
+    "stackEyebrow": "Stack",
+    "stackTitle": "Technologies I use across interface, motion and product systems.",
+    "stackDescription": "Click any technology to learn more about my experience with it.",
+    "pausedMessage": "{technology} selected. Motion is paused.",
+    "runningMessage": "The rows move continuously until you pause them.",
+    "openOnGithub": "Open {technology} on GitHub"
+  },
+  "footer": {
+    "titleLine1": "Let's work",
+    "titleLine2": "together",
+    "cta": "Get in touch",
+    "version": "Version",
+    "edition": "2026 © Edition",
+    "socials": "Socials"
+  }
+}

@@ -1,6 +1,21 @@
+import {setRequestLocale} from "next-intl/server";
+import {useTranslations} from "next-intl";
 import HeroParallaxDemo from "@/components/hero-parallax-demo";
 
-export default function ProjectsPage() {
+export default async function ProjectsPage({
+  params,
+}: {
+  params: Promise<{locale: string}>;
+}) {
+  const {locale} = await params;
+  setRequestLocale(locale);
+
+  return <ProjectsContent />;
+}
+
+function ProjectsContent() {
+  const t = useTranslations("projects");
+
   return (
     <section className="bg-black text-white">
       <HeroParallaxDemo />
@@ -10,7 +25,7 @@ export default function ProjectsPage() {
           className="h-5 w-5 animate-spin rounded-full border-2 border-white/25 border-t-white/85"
         />
         <p className="text-xs uppercase tracking-[0.35em] text-white/50">
-          More projects loading soon
+          {t("loadingSoon")}
         </p>
       </div>
     </section>

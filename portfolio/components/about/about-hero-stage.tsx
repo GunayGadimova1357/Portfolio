@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
+import {useTranslations} from "next-intl";
 import gsap from "gsap";
 import type { RefObject } from "react";
 
@@ -9,6 +10,7 @@ type AboutHeroStageProps = {
 };
 
 export function AboutHeroStage({ heroRef }: AboutHeroStageProps) {
+  const t = useTranslations("about");
   const hoverAreaRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLSpanElement>(null);
   const developerRef = useRef<HTMLSpanElement>(null);
@@ -88,13 +90,13 @@ export function AboutHeroStage({ heroRef }: AboutHeroStageProps) {
         >
           <h1 className="relative z-10 grid place-items-center text-[clamp(5.75rem,15vw,11.5rem)] font-light uppercase leading-[0.8] tracking-[-0.1em] text-white">
             <span ref={aboutRef} className="col-start-1 row-start-1 block will-change-transform">
-              About
+              {t("heroPrimary")}
             </span>
             <span
               ref={developerRef}
               className="col-start-1 row-start-1 block whitespace-nowrap will-change-transform"
             >
-              Developer
+              {t("heroSecondary")}
             </span>
           </h1>
         </div>

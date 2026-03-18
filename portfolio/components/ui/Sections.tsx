@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import {useTranslations} from "next-intl";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import gsap from "gsap";
@@ -13,6 +14,7 @@ if (typeof window !== "undefined") {
 }
 
 export function Sections() {
+  const t = useTranslations("home");
   const pageRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const [moonProgress, setMoonProgress] = useState(0);
@@ -98,20 +100,19 @@ export function Sections() {
                 data-reveal-hero
                 className="mb-5 text-sm uppercase tracking-[0.35em] text-white/45"
               >
-                Full-Stack Engineer
+                {t("heroEyebrow")}
               </p>
               <h1
                 data-reveal-hero
                 className="max-w-2xl text-5xl font-light tracking-[-0.05em] md:text-7xl"
               >
-                I design systems from interface to infrastructure.
+                {t("heroTitle")}
               </h1>
               <p
                 data-reveal-hero
                 className="mt-6 max-w-xl text-base leading-7 text-white/62 md:text-lg"
               >
-                Full-stack development focused on performance, structure and
-                long-term scalability.
+                {t("heroDescription")}
               </p>
             </div>
           </div>
@@ -135,7 +136,7 @@ export function Sections() {
           >
             <Image
               src="/themoon.jpg"
-              alt="Moon background"
+              alt={t("moonLabel")}
               fill
               priority
               className="object-contain object-center select-none opacity-[0.94]"
@@ -147,7 +148,7 @@ export function Sections() {
             data-reveal-about
             className="absolute right-8 top-24 z-10 text-xs uppercase tracking-[0.35em] text-white/70 md:right-16"
           >
-            The Moon
+            {t("moonLabel")}
           </div>
 
           <div className="relative z-10 flex h-full items-end px-8 pb-24 md:px-16 md:pb-28">
@@ -156,17 +157,13 @@ export function Sections() {
                 data-reveal-about
                 className="text-5xl font-light tracking-[-0.05em] md:text-7xl"
               >
-                About.
+                {t("aboutTitle")}
               </h2>
               <p
                 data-reveal-about
                 className="mt-8 max-w-4xl text-lg leading-8 text-white/74 md:text-[1.75rem] md:leading-[1.45]"
               >
-                I design and engineer complete digital products — not just
-                screens, but the logic behind them. Working with Next.js,
-                backend services, databases and system architecture, I aim to
-                create products that feel simple on the surface and powerful
-                underneath.
+                {t("aboutDescription")}
               </p>
             </div>
           </div>
@@ -182,13 +179,13 @@ export function Sections() {
             data-reveal-projects
             className="text-xs uppercase tracking-[0.35em] text-white/45"
           >
-            Selected work
+            {t("projectsEyebrow")}
           </p>
           <h2
             data-reveal-projects
             className="mt-3 text-4xl font-light tracking-[-0.04em] text-white md:text-6xl"
           >
-            Projects.
+            {t("projectsTitle")}
           </h2>
         </div>
 
