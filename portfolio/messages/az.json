@@ -1,0 +1,78 @@
+{
+  "nav": {
+    "home": "Gunay",
+    "projects": "Layihələr",
+    "about": "Haqqımda",
+    "contact": "Əlaqə",
+    "languageLabel": "Dil",
+    "en": "EN",
+    "ru": "RU",
+    "az": "AZ"
+  },
+  "home": {
+    "heroEyebrow": "Full-stack mühəndis",
+    "heroTitle": "İnterfeysdən infrastruktura qədər sistemlər dizayn edirəm.",
+    "heroDescription": "Performans, struktur və uzunmüddətli miqyaslana bilmə üzərində fokuslanan full-stack inkişaf.",
+    "moonLabel": "Ay",
+    "aboutTitle": "Haqqımda.",
+    "aboutDescription": "Mən yalnız ekranları deyil, onların arxasındakı məntiqi də quraraq tam rəqəmsal məhsullar dizayn və inkişaf etdirirəm. Next.js, backend servislər, verilənlər bazaları və sistem arxitekturası ilə işləyərək səthdə sadə, daxilində isə güclü hiss olunan məhsullar yaratmağa çalışıram.",
+    "projectsEyebrow": "Seçilmiş işlər",
+    "projectsTitle": "Layihələr."
+  },
+  "projects": {
+    "headerTitle": "Seçilmiş layihələr\nvə peşəkar işlər",
+    "headerDescription": "Müasir texnologiyalar, təmiz arxitektura və peşəkar icra bacarıqlarımı göstərən seçilmiş layihələr toplusu. Hər layihə keyfiyyətə, performansa və istifadəçi təcrübəsinə fokuslanır.",
+    "loadingSoon": "Tezliklə daha çox layihə əlavə olunacaq",
+    "items": {
+      "phantom": {
+        "description": "Müasir UI, dinamik axtarış və rahat baxış üçün optimallaşdırılmış responsive layout-larla film kəşfi üçün veb tətbiq.",
+        "alt": "Phantom layihəsinin önizləməsi"
+      },
+      "eclipse": {
+        "descriptionBefore": "İnteraktiv musiqi axını tətbiqi, ",
+        "descriptionAfter": " ilə birlikdə hazırlanıb.",
+        "alt": "Eclipse layihəsinin önizləməsi"
+      },
+      "coffeeShop": {
+        "description": "Vizual iyerarxiya, aydın naviqasiya və mobile-first istifadəyə fokuslanan məhsul üslublu qəhvə tətbiqi konsepti.",
+        "alt": "Coffee Shop layihəsinin önizləməsi"
+      },
+      "mazeGame": {
+        "description": "Atmosferik mühitlər, intuitiv idarəetmə və cəlbedici oyun təcrübəsi üçün dinamik çətinliklər təqdim edən oyun.",
+        "alt": "Maze Game layihəsinin önizləməsi"
+      }
+    }
+  },
+  "contact": {
+    "eyebrow": "Bir ideyan var?",
+    "titlePrefix": "Gəlin",
+    "titleSuffix": "bunu birlikdə edək.",
+    "words": {
+      "build": "quraq",
+      "design": "dizayn edək",
+      "improve": "təkmilləşdirək"
+    },
+    "description": "Məhsul və full-stack əməkdaşlığa açığam. Mənə yaz, qısa zamanda geri dönüş edəcəyəm."
+  },
+  "about": {
+    "heroPrimary": "Haqqımda",
+    "heroSecondary": "Developer",
+    "introTitle": "Qısa bio.",
+    "introDescription": "ASOIU-da Mexatronika və Robototexnika üzrə təhsil alıram, paralel olaraq STEP IT Academy-də Software Development istiqaməti ilə texniki bazamı gücləndirirəm.",
+    "introImageAlt": "Saturn üslublu vizual",
+    "stackEyebrow": "Stack",
+    "stackTitle": "İnterfeys, motion və məhsul sistemlərində istifadə etdiyim texnologiyalar.",
+    "stackDescription": "Təcrübəm haqqında daha çox öyrənmək üçün istənilən texnologiyaya klik et.",
+    "pausedMessage": "{technology} seçildi. Animasiya dayandırıldı.",
+    "runningMessage": "Sətirlər sən dayandırana qədər fasiləsiz hərəkət edir.",
+    "openOnGithub": "{technology} layihəsini GitHub-da aç"
+  },
+  "footer": {
+    "titleLine1": "Gəlin birlikdə",
+    "titleLine2": "işləyək",
+    "cta": "Əlaqə saxla",
+    "version": "Versiya",
+    "edition": "2026 © Edition",
+    "socials": "Sosial şəbəkələr"
+  }
+}

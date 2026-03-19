@@ -4,14 +4,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { usePathname, useRouter } from "next/navigation";
 import { EncryptedText } from "@/components/ui/encrypted-text";
+import { routing } from "@/i18n/routing";
 
 const REVEAL_DELAY_MS = 78;
 const FLIP_DELAY_MS = 56;
 
 function getReadableRouteName(pathname: string): string {
-  if (pathname === "/") return "Home";
   const parts = pathname.split("/").filter(Boolean);
-  const last = parts[parts.length - 1] ?? "Page";
+  const withoutLocale =
+    parts.length > 0 && routing.locales.includes(parts[0] as (typeof routing.locales)[number])
+      ? parts.slice(1)
+      : parts;
+
+  if (withoutLocale.length === 0) return "Home";
+  const last = withoutLocale[withoutLocale.length - 1] ?? "Page";
   return last
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
