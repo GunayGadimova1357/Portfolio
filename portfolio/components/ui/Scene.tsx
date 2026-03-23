@@ -11,7 +11,7 @@ type SceneProps = {
 
 export default function Scene({
   className = '',
-  starOpacity = 0.35,
+  starOpacity = 0.34,
 }: SceneProps) {
   return (
     <div className={`pointer-events-none ${className}`.trim()}>
