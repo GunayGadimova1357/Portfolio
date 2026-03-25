@@ -20,9 +20,9 @@
     "projectsTitle": "Projects."
   },
   "projects": {
-    "headerTitle": "Selected Projects\n& Professional Work",
-    "headerDescription": "A curated showcase of my development projects, demonstrating expertise in modern technologies, clean architecture, and professional execution. Each project reflects a focus on quality, performance, and user experience.",
-    "loadingSoon": "More projects loading soon",
+    "headerTitle": "Selected projects\nthat I have built",
+    "headerDescription": "A focused set of product and development work. Each project reflects attention to structure, performance and a clear user experience.",
+    "loadingSoon": "More projects will appear here soon.",
     "items": {
       "phantom": {
         "description": "Movie discovery web app with modern UI, dynamic search, and responsive layouts optimized for smooth browsing.",

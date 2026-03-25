@@ -9,7 +9,12 @@ export function ConditionalFooter({
 }) {
   const pathname = usePathname();
 
-  if (pathname === "/about" || pathname === "/projects" || pathname === "/contact") {
+  if (
+    pathname === "/about" ||
+    pathname === "/projects" ||
+    pathname === "/contact" ||
+    pathname.startsWith("/dashboard")
+  ) {
     return null;
   }
 

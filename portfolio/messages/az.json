@@ -20,9 +20,9 @@
     "projectsTitle": "Layihələr."
   },
   "projects": {
-    "headerTitle": "Seçilmiş layihələr\nvə peşəkar işlər",
-    "headerDescription": "Müasir texnologiyalar, təmiz arxitektura və peşəkar icra bacarıqlarımı göstərən seçilmiş layihələr toplusu. Hər layihə keyfiyyətə, performansa və istifadəçi təcrübəsinə fokuslanır.",
-    "loadingSoon": "Tezliklə daha çox layihə əlavə olunacaq",
+    "headerTitle": "Seçilmiş layihələr,\nüzərində işlədiyim işlər",
+    "headerDescription": "Struktur, performans və aydın istifadəçi təcrübəsinə fokuslanan məhsul və development işlərindən seçilmiş toplusu.",
+    "loadingSoon": "Tezliklə burada daha çox layihə görünəcək.",
     "items": {
       "phantom": {
         "description": "Müasir UI, dinamik axtarış və rahat baxış üçün optimallaşdırılmış responsive layout-larla film kəşfi üçün veb tətbiq.",

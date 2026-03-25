@@ -166,7 +166,7 @@ export const Header = ({
       ref={headerRef}
       className="relative left-0 top-0 mx-auto w-full max-w-7xl px-4 py-20 md:py-40"
     >
-      <h1 data-project-head className="text-2xl font-bold text-white md:text-7xl">
+      <h1 data-project-head className="max-w-4xl text-3xl font-semibold text-white md:text-6xl">
         {t("headerTitle")
           .split("\n")
           .map((line, index) => (
@@ -178,7 +178,7 @@ export const Header = ({
       </h1>
       <p
         data-project-head
-        className="mt-8 max-w-2xl text-base text-neutral-200 md:text-xl"
+        className="mt-6 max-w-2xl text-[15px] leading-7 text-neutral-300 md:text-lg"
       >
         {t("headerDescription")}
       </p>
@@ -224,7 +224,7 @@ export const ProductCard = ({
         />
       </a>
       <div className="pointer-events-none absolute inset-0 h-full w-full bg-black opacity-0 group-hover/product:opacity-80" />
-      <h2 className="absolute bottom-4 left-4 text-white opacity-0 group-hover/product:opacity-100">
+      <h2 className="absolute bottom-4 left-4 text-lg font-medium text-white opacity-0 group-hover/product:opacity-100">
         {product.title}
       </h2>
     </motion.div>

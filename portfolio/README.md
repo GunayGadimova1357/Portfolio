@@ -1,8 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org) portfolio project with a private admin dashboard powered by NextAuth credentials.
 
 ## Getting Started
 
-First, run the development server:
+First, create your local environment file:
+
+```bash
+cp .env.example .env.local
+```
+
+Set these values in `.env.local`:
+
+```bash
+AUTH_SECRET=your-random-secret
+ADMIN_EMAIL=your-email@example.com
+ADMIN_PASSWORD=your-strong-password
+```
+
+Then run the development server:
 
 ```bash
 npm run dev
@@ -14,9 +28,9 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/en](http://localhost:3000/en) with your browser to see the site.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The admin panel lives at `/en/dashboard/login`, `/ru/dashboard/login`, and `/az/dashboard/login`. Only the configured `ADMIN_EMAIL` + `ADMIN_PASSWORD` account can sign in.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

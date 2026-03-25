@@ -41,6 +41,10 @@ export default function Navbar() {
     };
   }, []);
 
+  if (pathname.startsWith("/dashboard")) {
+    return null;
+  }
+
   return (
     <nav className="fixed top-0 w-full flex justify-between items-center px-10 py-8 z-50 bg-[var(--chrome-surface)]/90 backdrop-blur-md border-b border-white/10">
       <Link href="/" className="text-white text-xl font-medium tracking-tight">
