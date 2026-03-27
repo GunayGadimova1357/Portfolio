@@ -5,7 +5,7 @@ This is a [Next.js](https://nextjs.org) portfolio project with a private admin d
 First, create your local environment file:
 
 ```bash
-cp .env.example .env.local
+cp .env
 ```
 
 Set these values in `.env`:
