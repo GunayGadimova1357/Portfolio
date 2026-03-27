@@ -8,7 +8,7 @@ First, create your local environment file:
 cp .env.example .env.local
 ```
 
-Set these values in `.env.local`:
+Set these values in `.env`:
 
 ```bash
 AUTH_SECRET=your-random-secret
