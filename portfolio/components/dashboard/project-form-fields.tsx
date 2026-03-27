@@ -5,6 +5,8 @@ export function DashboardField({
   placeholder,
   type = "text",
   multiline = false,
+  required = true,
+  rows = 4,
 }: {
   label: string;
   name: string;
@@ -12,22 +14,24 @@ export function DashboardField({
   placeholder?: string;
   type?: string;
   multiline?: boolean;
+  required?: boolean;
+  rows?: number;
 }) {
   return (
     <label className="block space-y-2">
       <span className="text-sm font-medium text-white/72">{label}</span>
       {multiline ? (
         <textarea
-          required
+          required={required}
           name={name}
           defaultValue={defaultValue}
           placeholder={placeholder}
-          rows={4}
+          rows={rows}
           className="w-full resize-y rounded-2xl border border-white/12 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/28 focus:border-white/30"
         />
       ) : (
         <input
-          required
+          required={required}
           type={type}
           name={name}
           defaultValue={defaultValue}

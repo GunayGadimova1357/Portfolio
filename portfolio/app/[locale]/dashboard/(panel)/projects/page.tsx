@@ -32,7 +32,6 @@ export default async function DashboardProjectsPage({
       <section className="rounded-[2rem] border border-white/10 bg-[#101015] p-6 md:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm text-white/55">Projects</p>
             <h1 className="mt-2 text-4xl font-semibold text-white">Projects</h1>
             <p className="mt-3 max-w-2xl text-[15px] leading-7 text-white/58">
               Manage your portfolio projects and case studies from one place.

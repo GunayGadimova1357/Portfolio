@@ -1,12 +1,14 @@
 import {redirect} from "next/navigation";
 import {getServerSession} from "next-auth/next";
 import {
+  CircleUserRound,
   FolderKanban,
   LayoutDashboard,
   PlusSquare,
   Search,
   Sparkles,
   Zap,
+  Wrench,
 } from "lucide-react";
 import {authOptions} from "@/auth";
 import {LogoutButton} from "@/components/dashboard/logout-button";
@@ -50,6 +52,16 @@ export default async function DashboardPanelLayout({
       label: "Manage projects",
       icon: <FolderKanban className="h-4 w-4" />,
     },
+    {
+      href: "/dashboard/short-bio",
+      label: "Short bio",
+      icon: <CircleUserRound className="h-4 w-4" />,
+    },
+    {
+      href: "/dashboard/technologies",
+      label: "Technologies",
+      icon: <Wrench className="h-4 w-4" />,
+    },
   ];
 
   return (
@@ -57,7 +69,7 @@ export default async function DashboardPanelLayout({
       <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),_transparent_28%),linear-gradient(180deg,_#0a0a0d_0%,_#050505_100%)]">
         <div className="mx-auto max-w-[1700px]">
           <div className="grid min-h-screen md:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[290px_minmax(0,1fr)]">
-            <aside className="hidden min-h-screen flex-col border-r border-white/8 bg-[linear-gradient(180deg,_rgba(255,255,255,0.03)_0%,_rgba(255,255,255,0.015)_100%)] md:flex">
+            <aside className="hidden h-screen overflow-y-auto border-r border-white/8 bg-[linear-gradient(180deg,_rgba(255,255,255,0.03)_0%,_rgba(255,255,255,0.015)_100%)] md:sticky md:top-0 md:flex md:flex-col">
               <div className="border-b border-white/8 px-5 py-6">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
@@ -134,7 +146,7 @@ export default async function DashboardPanelLayout({
                 </div>
               </div>
 
-              <div className="border-b border-white/8 px-4 py-4 md:px-6 lg:px-8">
+              <div className="sticky top-0 z-20 border-b border-white/8 bg-[#0a0b0f]/88 px-4 py-4 backdrop-blur-md md:px-6 lg:px-8">
                 <div className="flex justify-end">
                   <form
                     action={`/${locale}/dashboard/projects`}

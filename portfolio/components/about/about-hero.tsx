@@ -5,12 +5,13 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AboutBioPanel } from "@/components/about/about-bio-panel";
 import { AboutHeroStage } from "@/components/about/about-hero-stage";
+import type {AboutContentRecord} from "@/lib/about";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-export function AboutHero() {
+export function AboutHero({about}: {about: AboutContentRecord}) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -74,10 +75,10 @@ export function AboutHero() {
         className="relative h-screen overflow-clip bg-[#050608] text-white"
       >
         <AboutHeroStage heroRef={heroRef} />
-        <AboutBioPanel panelRef={panelRef} intro />
+        <AboutBioPanel about={about} panelRef={panelRef} intro />
       </section>
 
-      <AboutBioPanel />
+      <AboutBioPanel about={about} />
     </div>
   );
 }
