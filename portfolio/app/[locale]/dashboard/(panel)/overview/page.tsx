@@ -1,16 +1,11 @@
 import {Link} from "@/i18n/navigation";
 import {getAboutContent} from "@/lib/about";
 import {getAllProjects} from "@/lib/projects";
-import {getAllServices} from "@/lib/services";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardOverviewPage() {
-  const [projects, about, services] = await Promise.all([
-    getAllProjects(),
-    getAboutContent(),
-    getAllServices(),
-  ]);
+  const [projects, about] = await Promise.all([getAllProjects(), getAboutContent()]);
   const publishedProjects = projects.filter((project) => project.published);
   const latestProjects = projects.slice(0, 4);
   const draftProjects = projects.filter((project) => !project.published);
@@ -32,7 +27,6 @@ export default async function DashboardOverviewPage() {
             <QuickLink href="/dashboard/create" label="New project" />
             <QuickLink href="/dashboard/short-bio" label="Edit short bio" />
             <QuickLink href="/dashboard/technologies" label="Manage technologies" />
-            <QuickLink href="/dashboard/services" label="Services" />
           </div>
         </div>
       </section>
@@ -57,11 +51,6 @@ export default async function DashboardOverviewPage() {
           title="Technologies"
           value={String(about.technologies.length)}
           description="Items currently shown in the about stack section."
-        />
-        <OverviewMetric
-          title="Services"
-          value={String(services.length)}
-          description="Dashboard-managed service records available for editing."
         />
       </section>
 

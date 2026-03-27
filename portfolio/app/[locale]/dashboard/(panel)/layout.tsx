@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   PlusSquare,
   Search,
-  Settings2,
   Sparkles,
   Zap,
   Wrench,
@@ -16,7 +15,6 @@ import {LogoutButton} from "@/components/dashboard/logout-button";
 import {SidebarNav} from "@/components/dashboard/sidebar-nav";
 import {getAdminEmail} from "@/lib/admin";
 import {getAllProjects} from "@/lib/projects";
-import {getAllServices} from "@/lib/services";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +32,7 @@ export default async function DashboardPanelLayout({
     redirect(`/${locale}/dashboard/login`);
   }
 
-  const [projects, services] = await Promise.all([getAllProjects(), getAllServices()]);
+  const projects = await getAllProjects();
   const publishedProjects = projects.filter((project) => project.published).length;
   const draftProjects = projects.length - publishedProjects;
 
@@ -63,11 +61,6 @@ export default async function DashboardPanelLayout({
       href: "/dashboard/technologies",
       label: "Technologies",
       icon: <Wrench className="h-4 w-4" />,
-    },
-    {
-      href: "/dashboard/services",
-      label: "Services",
-      icon: <Settings2 className="h-4 w-4" />,
     },
   ];
 
@@ -107,7 +100,7 @@ export default async function DashboardPanelLayout({
                   <div className="mt-4 grid grid-cols-3 gap-2">
                     <CompactStat value={String(projects.length)} label="All" />
                     <CompactStat value={String(publishedProjects)} label="Live" />
-                    <CompactStat value={String(draftProjects + services.length)} label="Queue" />
+                    <CompactStat value={String(draftProjects)} label="Queue" />
                   </div>
                 </div>
               </div>

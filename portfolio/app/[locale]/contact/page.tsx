@@ -3,7 +3,6 @@
 import {Canvas, useFrame} from "@react-three/fiber";
 import {useTranslations} from "next-intl";
 import {useLayoutEffect, useRef} from "react";
-import type {Mesh} from "three";
 import gsap from "gsap";
 import {ScrollTrigger} from "gsap/ScrollTrigger";
 import {FlipWords} from "@/components/ui/flip-words";
@@ -13,7 +12,12 @@ if (typeof window !== "undefined") {
 }
 
 function RotatingSphere() {
-  const meshRef = useRef<Mesh>(null);
+  const meshRef = useRef<{
+    rotation: {
+      x: number;
+      y: number;
+    };
+  } | null>(null);
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;

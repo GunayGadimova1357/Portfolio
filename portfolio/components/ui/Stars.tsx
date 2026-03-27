@@ -50,8 +50,23 @@ type StarsProps = {
 };
 
 export function Stars({ opacity = 0.4 }: StarsProps) {
-  const meshRef = useRef<THREE.Points>(null);
-  const materialRef = useRef<THREE.PointsMaterial>(null);
+  const meshRef = useRef<{
+    geometry: {
+      attributes: {
+        position?: {
+          array: Float32Array | ArrayLike<number>;
+          needsUpdate: boolean;
+        };
+      };
+    };
+    rotation: {
+      x: number;
+      y: number;
+    };
+  } | null>(null);
+  const materialRef = useRef<{
+    opacity: number;
+  } | null>(null);
   const timeRef = useRef(0);
 
   useEffect(() => {

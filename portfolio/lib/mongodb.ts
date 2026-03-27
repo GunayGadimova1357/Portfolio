@@ -12,7 +12,7 @@ declare global {
 }
 
 function createClientPromise() {
-  const promise = new MongoClient(mongoUri, {
+  const promise = new MongoClient(mongoUri as string, {
     appName: "portfolio-dashboard",
   })
     .connect()

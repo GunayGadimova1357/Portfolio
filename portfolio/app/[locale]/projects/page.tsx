@@ -1,7 +1,7 @@
 import {setRequestLocale} from "next-intl/server";
 import {useTranslations} from "next-intl";
-import HeroParallaxDemo from "@/components/hero-parallax-demo";
 import {ProjectsGrid} from "@/components/projects/projects-grid";
+import {HeroParallax} from "@/components/ui/hero-parallax";
 import {getPublishedProjects} from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +28,14 @@ function ProjectsContent({
 
   return (
     <section className="bg-black text-white">
-      <HeroParallaxDemo projects={projects} />
+      <HeroParallax
+        products={projects.map((project) => ({
+          title: project.title,
+          link: project.link,
+          thumbnail: project.thumbnail,
+          alt: project.alt,
+        }))}
+      />
       {projects.length > 0 ? (
         <ProjectsGrid projects={projects} />
       ) : (

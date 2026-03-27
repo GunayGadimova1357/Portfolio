@@ -7,7 +7,7 @@ import { useMotionValueEvent, useScroll } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Scene from "./Scene";
-import StickyScrollRevealDemo from "@/components/sticky-scroll-reveal-demo";
+import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -15,9 +15,81 @@ if (typeof window !== "undefined") {
 
 export function Sections() {
   const t = useTranslations("home");
+  const tProjects = useTranslations("projects");
   const pageRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const [moonProgress, setMoonProgress] = useState(0);
+  const projectShowcase = [
+    {
+      title: "Phantom",
+      description: tProjects("items.phantom.description"),
+      content: (
+        <div className="relative h-full w-full">
+          <Image
+            src="/movieapp.png"
+            alt={tProjects("items.phantom.alt")}
+            fill
+            className="object-cover object-center"
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Eclipse",
+      description: (
+        <span>
+          {tProjects("items.eclipse.descriptionBefore")}
+          <a
+            href="https://github.com/F4IK05"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zinc-100 transition-colors hover:text-white"
+          >
+            @F4IK05
+          </a>
+          {tProjects("items.eclipse.descriptionAfter")}
+        </span>
+      ),
+      content: (
+        <div className="relative h-full w-full">
+          <Image
+            src="/musicapp.png"
+            alt={tProjects("items.eclipse.alt")}
+            fill
+            className="object-cover object-center"
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Coffee Shop",
+      description: tProjects("items.coffeeShop.description"),
+      content: (
+        <div className="relative h-full w-full">
+          <Image
+            src="/coffeeapp.png"
+            alt={tProjects("items.coffeeShop.alt")}
+            fill
+            className="object-cover object-center"
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Maze Game",
+      description: tProjects("items.mazeGame.description"),
+      content: (
+        <div className="relative h-full w-full">
+          <Image
+            src="/maze.png"
+            alt={tProjects("items.mazeGame.alt")}
+            fill
+            className="object-cover object-center"
+          />
+        </div>
+      ),
+    },
+  ];
   const { scrollYProgress } = useScroll({
     target: aboutRef,
     offset: ["start end", "end start"],
@@ -189,7 +261,9 @@ export function Sections() {
           </h2>
         </div>
 
-        <StickyScrollRevealDemo />
+        <div className="w-full">
+          <StickyScroll content={projectShowcase} />
+        </div>
       </section>
     </div>
   );
