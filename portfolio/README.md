@@ -14,6 +14,8 @@ Set these values in `.env`:
 AUTH_SECRET=your-random-secret
 ADMIN_EMAIL=your-email@example.com
 ADMIN_PASSWORD=your-strong-password
+MONGODB_URI=mongodb://127.0.0.1:27017
+MONGODB_DB=portfolio
 ```
 
 Then run the development server:

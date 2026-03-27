@@ -1,5 +1,4 @@
-import {promises as fs} from "node:fs";
-import path from "node:path";
+import {getDatabase} from "@/lib/mongodb";
 
 export type ProjectRecord = {
   id: string;
@@ -12,15 +11,10 @@ export type ProjectRecord = {
   published: boolean;
 };
 
-const projectsFilePath = path.join(process.cwd(), "data", "projects.json");
+const projectsCollectionName = "projects";
 
-async function readProjectsFile() {
-  const content = await fs.readFile(projectsFilePath, "utf8");
-  return JSON.parse(content) as ProjectRecord[];
-}
-
-async function writeProjectsFile(projects: ProjectRecord[]) {
-  await fs.writeFile(projectsFilePath, JSON.stringify(projects, null, 2) + "\n", "utf8");
+async function getProjectsCollection() {
+  return (await getDatabase()).collection<ProjectRecord>(projectsCollectionName);
 }
 
 function sortProjects(projects: ProjectRecord[]) {
@@ -34,7 +28,8 @@ function sortProjects(projects: ProjectRecord[]) {
 }
 
 export async function getAllProjects() {
-  return sortProjects(await readProjectsFile());
+  const collection = await getProjectsCollection();
+  return sortProjects(await collection.find({}, {projection: {_id: 0}}).toArray());
 }
 
 export async function getPublishedProjects() {
@@ -42,30 +37,24 @@ export async function getPublishedProjects() {
 }
 
 export async function createProject(project: ProjectRecord) {
-  const projects = await readProjectsFile();
-  projects.push(project);
-  await writeProjectsFile(sortProjects(projects));
+  const collection = await getProjectsCollection();
+  await collection.insertOne(project);
 }
 
 export async function updateProject(projectId: string, nextProject: ProjectRecord) {
-  const projects = await readProjectsFile();
-  const index = projects.findIndex((project) => project.id === projectId);
+  const collection = await getProjectsCollection();
+  const result = await collection.updateOne({id: projectId}, {$set: nextProject});
 
-  if (index === -1) {
+  if (result.matchedCount === 0) {
     throw new Error("Project not found.");
   }
-
-  projects[index] = nextProject;
-  await writeProjectsFile(sortProjects(projects));
 }
 
 export async function deleteProject(projectId: string) {
-  const projects = await readProjectsFile();
-  const nextProjects = projects.filter((project) => project.id !== projectId);
+  const collection = await getProjectsCollection();
+  const result = await collection.deleteOne({id: projectId});
 
-  if (nextProjects.length === projects.length) {
+  if (result.deletedCount === 0) {
     throw new Error("Project not found.");
   }
-
-  await writeProjectsFile(sortProjects(nextProjects));
 }

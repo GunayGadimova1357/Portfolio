@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   PlusSquare,
   Search,
+  Settings2,
   Sparkles,
   Zap,
   Wrench,
@@ -15,6 +16,7 @@ import {LogoutButton} from "@/components/dashboard/logout-button";
 import {SidebarNav} from "@/components/dashboard/sidebar-nav";
 import {getAdminEmail} from "@/lib/admin";
 import {getAllProjects} from "@/lib/projects";
+import {getAllServices} from "@/lib/services";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +34,7 @@ export default async function DashboardPanelLayout({
     redirect(`/${locale}/dashboard/login`);
   }
 
-  const projects = await getAllProjects();
+  const [projects, services] = await Promise.all([getAllProjects(), getAllServices()]);
   const publishedProjects = projects.filter((project) => project.published).length;
   const draftProjects = projects.length - publishedProjects;
 
@@ -62,6 +64,11 @@ export default async function DashboardPanelLayout({
       label: "Technologies",
       icon: <Wrench className="h-4 w-4" />,
     },
+    {
+      href: "/dashboard/services",
+      label: "Services",
+      icon: <Settings2 className="h-4 w-4" />,
+    },
   ];
 
   return (
@@ -70,7 +77,7 @@ export default async function DashboardPanelLayout({
         <div className="mx-auto max-w-[1700px]">
           <div className="grid min-h-screen md:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[290px_minmax(0,1fr)]">
             <aside className="hidden h-screen overflow-y-auto border-r border-white/8 bg-[linear-gradient(180deg,_rgba(255,255,255,0.03)_0%,_rgba(255,255,255,0.015)_100%)] md:sticky md:top-0 md:flex md:flex-col">
-              <div className="border-b border-white/8 px-5 py-6">
+              <div className="flex min-h-[93px] items-center border-b border-white/8 px-5">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
                     <LayoutDashboard className="h-4 w-4 text-white/80" />
@@ -100,7 +107,7 @@ export default async function DashboardPanelLayout({
                   <div className="mt-4 grid grid-cols-3 gap-2">
                     <CompactStat value={String(projects.length)} label="All" />
                     <CompactStat value={String(publishedProjects)} label="Live" />
-                    <CompactStat value={String(draftProjects)} label="Draft" />
+                    <CompactStat value={String(draftProjects + services.length)} label="Queue" />
                   </div>
                 </div>
               </div>
@@ -146,8 +153,8 @@ export default async function DashboardPanelLayout({
                 </div>
               </div>
 
-              <div className="sticky top-0 z-20 border-b border-white/8 bg-[#0a0b0f]/88 px-4 py-4 backdrop-blur-md md:px-6 lg:px-8">
-                <div className="flex justify-end">
+              <div className="sticky top-0 z-20 border-b border-white/8 bg-[#0a0b0f]/88 px-4 py-4 backdrop-blur-md md:min-h-[93px] md:px-6 lg:px-8">
+                <div className="flex justify-end md:min-h-[61px] md:items-center">
                   <form
                     action={`/${locale}/dashboard/projects`}
                     className="relative w-full xl:max-w-[420px]"

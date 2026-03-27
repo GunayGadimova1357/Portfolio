@@ -1,5 +1,4 @@
-import {promises as fs} from "node:fs";
-import path from "node:path";
+import {getDatabase} from "@/lib/mongodb";
 
 export type AboutBioRecord = {
   en: string;
@@ -22,15 +21,52 @@ export type AboutContentRecord = {
   technologies: AboutTechnologyRecord[];
 };
 
-const aboutFilePath = path.join(process.cwd(), "data", "about.json");
+const aboutCollectionName = "about";
+const aboutDocumentId = "about-content";
 
-async function readAboutFile() {
-  const content = await fs.readFile(aboutFilePath, "utf8");
-  return JSON.parse(content) as AboutContentRecord;
+async function getAboutCollection() {
+  return (await getDatabase()).collection<AboutContentRecord & {_id: string}>(aboutCollectionName);
 }
 
-async function writeAboutFile(content: AboutContentRecord) {
-  await fs.writeFile(aboutFilePath, JSON.stringify(content, null, 2) + "\n", "utf8");
+function createEmptyAboutContent(): AboutContentRecord {
+  return {
+    bio: {
+      en: "",
+      ru: "",
+      az: "",
+    },
+    technologies: [],
+  };
+}
+
+async function ensureAboutSeeded() {
+  const collection = await getAboutCollection();
+  await collection.updateOne(
+    {_id: aboutDocumentId},
+    {
+      $setOnInsert: {
+        bio: createEmptyAboutContent().bio,
+        technologies: [],
+      },
+    },
+    {upsert: true},
+  );
+
+  return collection;
+}
+
+async function readAboutContent() {
+  const collection = await ensureAboutSeeded();
+  const document = await collection.findOne({_id: aboutDocumentId}, {projection: {_id: 0}});
+
+  if (!document) {
+    return createEmptyAboutContent();
+  }
+
+  return {
+    bio: document.bio,
+    technologies: document.technologies,
+  };
 }
 
 function sortTechnologies(technologies: AboutTechnologyRecord[]) {
@@ -44,7 +80,7 @@ function sortTechnologies(technologies: AboutTechnologyRecord[]) {
 }
 
 export async function getAboutContent() {
-  const content = await readAboutFile();
+  const content = await readAboutContent();
 
   return {
     ...content,
@@ -53,28 +89,26 @@ export async function getAboutContent() {
 }
 
 export async function updateAboutBio(nextBio: AboutBioRecord) {
-  const content = await readAboutFile();
-  await writeAboutFile({
-    ...content,
-    bio: nextBio,
-  });
+  const collection = await ensureAboutSeeded();
+  await collection.updateOne({_id: aboutDocumentId}, {$set: {bio: nextBio}});
 }
 
 export async function createAboutTechnology(technology: AboutTechnologyRecord) {
-  const content = await readAboutFile();
+  const content = await readAboutContent();
   content.technologies.push(technology);
 
-  await writeAboutFile({
-    ...content,
-    technologies: sortTechnologies(content.technologies),
-  });
+  const collection = await ensureAboutSeeded();
+  await collection.updateOne(
+    {_id: aboutDocumentId},
+    {$set: {technologies: sortTechnologies(content.technologies)}},
+  );
 }
 
 export async function updateAboutTechnology(
   technologyId: string,
   nextTechnology: AboutTechnologyRecord,
 ) {
-  const content = await readAboutFile();
+  const content = await readAboutContent();
   const index = content.technologies.findIndex((technology) => technology.id === technologyId);
 
   if (index === -1) {
@@ -83,22 +117,24 @@ export async function updateAboutTechnology(
 
   content.technologies[index] = nextTechnology;
 
-  await writeAboutFile({
-    ...content,
-    technologies: sortTechnologies(content.technologies),
-  });
+  const collection = await ensureAboutSeeded();
+  await collection.updateOne(
+    {_id: aboutDocumentId},
+    {$set: {technologies: sortTechnologies(content.technologies)}},
+  );
 }
 
 export async function deleteAboutTechnology(technologyId: string) {
-  const content = await readAboutFile();
+  const content = await readAboutContent();
   const nextTechnologies = content.technologies.filter((technology) => technology.id !== technologyId);
 
   if (nextTechnologies.length === content.technologies.length) {
     throw new Error("Technology not found.");
   }
 
-  await writeAboutFile({
-    ...content,
-    technologies: sortTechnologies(nextTechnologies),
-  });
+  const collection = await ensureAboutSeeded();
+  await collection.updateOne(
+    {_id: aboutDocumentId},
+    {$set: {technologies: sortTechnologies(nextTechnologies)}},
+  );
 }
