@@ -1,7 +1,7 @@
 import {deleteProjectAction, updateProjectAction} from "../../actions";
 import {Link} from "@/i18n/navigation";
 import {DashboardCheckbox, DashboardField} from "@/components/dashboard/project-form-fields";
-import {getAllProjects} from "@/lib/projects";
+import {searchProjects} from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
 
@@ -14,18 +14,7 @@ export default async function DashboardProjectsPage({
 }) {
   const {locale} = await params;
   const {q = ""} = await searchParams;
-  const query = q.trim().toLowerCase();
-  const projects = (await getAllProjects()).filter((project) => {
-    if (!query) {
-      return true;
-    }
-
-    const haystack = [project.title, project.description, project.id, project.link]
-      .join(" ")
-      .toLowerCase();
-
-    return haystack.includes(query);
-  });
+  const projects = await searchProjects(q);
 
   return (
     <>

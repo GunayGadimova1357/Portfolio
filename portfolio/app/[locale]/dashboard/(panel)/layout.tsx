@@ -14,7 +14,7 @@ import {authOptions} from "@/auth";
 import {LogoutButton} from "@/components/dashboard/logout-button";
 import {SidebarNav} from "@/components/dashboard/sidebar-nav";
 import {getAdminEmail} from "@/lib/admin";
-import {getAllProjects} from "@/lib/projects";
+import {getProjectStats} from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
 
@@ -32,9 +32,7 @@ export default async function DashboardPanelLayout({
     redirect(`/${locale}/dashboard/login`);
   }
 
-  const projects = await getAllProjects();
-  const publishedProjects = projects.filter((project) => project.published).length;
-  const draftProjects = projects.length - publishedProjects;
+  const projectStats = await getProjectStats();
 
   const navItems = [
     {
@@ -98,9 +96,9 @@ export default async function DashboardPanelLayout({
                   </div>
 
                   <div className="mt-4 grid grid-cols-3 gap-2">
-                    <CompactStat value={String(projects.length)} label="All" />
-                    <CompactStat value={String(publishedProjects)} label="Live" />
-                    <CompactStat value={String(draftProjects)} label="Queue" />
+                    <CompactStat value={String(projectStats.totalCount)} label="All" />
+                    <CompactStat value={String(projectStats.publishedCount)} label="Live" />
+                    <CompactStat value={String(projectStats.draftCount)} label="Queue" />
                   </div>
                 </div>
               </div>

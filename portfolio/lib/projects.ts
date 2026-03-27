@@ -1,4 +1,5 @@
 import {getDatabase} from "@/lib/mongodb";
+import type {Filter} from "mongodb";
 
 export type ProjectRecord = {
   id: string;
@@ -12,9 +13,15 @@ export type ProjectRecord = {
 };
 
 const projectsCollectionName = "projects";
+const projectsProjection = {_id: 0} as const;
 
 async function getProjectsCollection() {
   return (await getDatabase()).collection<ProjectRecord>(projectsCollectionName);
+}
+
+async function findProjects(filter: Filter<ProjectRecord> = {}) {
+  const collection = await getProjectsCollection();
+  return collection.find(filter, {projection: projectsProjection}).toArray();
 }
 
 function sortProjects(projects: ProjectRecord[]) {
@@ -28,20 +35,62 @@ function sortProjects(projects: ProjectRecord[]) {
 }
 
 export async function getAllProjects() {
-  const collection = await getProjectsCollection();
-  return sortProjects(await collection.find({}, {projection: {_id: 0}}).toArray());
+  return sortProjects(await findProjects());
 }
 
 export async function getPublishedProjects() {
-  return (await getAllProjects()).filter((project) => project.published);
+  return sortProjects(await findProjects({published: true}));
+}
+
+export async function getProjectById(projectId: string) {
+  const collection = await getProjectsCollection();
+  return collection.findOne({id: projectId}, {projection: projectsProjection});
+}
+
+export async function assertProjectIdAvailable(projectId: string, excludeProjectId?: string) {
+  const existingProject = await getProjectById(projectId);
+
+  if (existingProject && existingProject.id !== excludeProjectId) {
+    throw new Error("A project with this ID already exists.");
+  }
+}
+
+export async function searchProjects(query: string) {
+  const normalizedQuery = query.trim().toLowerCase();
+  const projects = await getAllProjects();
+
+  if (!normalizedQuery) {
+    return projects;
+  }
+
+  return projects.filter((project) => {
+    const haystack = [project.title, project.description, project.id, project.link]
+      .join(" ")
+      .toLowerCase();
+
+    return haystack.includes(normalizedQuery);
+  });
+}
+
+export async function getProjectStats() {
+  const projects = await getAllProjects();
+  const publishedCount = projects.filter((project) => project.published).length;
+
+  return {
+    totalCount: projects.length,
+    publishedCount,
+    draftCount: projects.length - publishedCount,
+  };
 }
 
 export async function createProject(project: ProjectRecord) {
+  await assertProjectIdAvailable(project.id);
   const collection = await getProjectsCollection();
   await collection.insertOne(project);
 }
 
 export async function updateProject(projectId: string, nextProject: ProjectRecord) {
+  await assertProjectIdAvailable(nextProject.id, projectId);
   const collection = await getProjectsCollection();
   const result = await collection.updateOne({id: projectId}, {$set: nextProject});
 

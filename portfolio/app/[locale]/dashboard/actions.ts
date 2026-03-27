@@ -5,13 +5,25 @@ import {requireAdminSession} from "@/lib/admin";
 import {
   createAboutTechnology,
   deleteAboutTechnology,
-  getAboutContent,
   type AboutBioRecord,
   type AboutTechnologyRecord,
   updateAboutBio,
   updateAboutTechnology,
 } from "@/lib/about";
-import {createProject, deleteProject, getAllProjects, updateProject, type ProjectRecord} from "@/lib/projects";
+import {
+  createProject,
+  deleteProject,
+  updateProject,
+  type ProjectRecord,
+} from "@/lib/projects";
+
+function getLocaleFromFormData(formData: FormData) {
+  return String(formData.get("locale") ?? "en");
+}
+
+function redirectToDashboard(formData: FormData, path = "") {
+  redirect(`/${getLocaleFromFormData(formData)}/dashboard${path}`);
+}
 
 function parseProjectFormData(formData: FormData): ProjectRecord {
   const id = String(formData.get("id") ?? "").trim();
@@ -87,24 +99,16 @@ function parseAboutTechnologyFormData(formData: FormData): AboutTechnologyRecord
 }
 
 export async function logout(formData: FormData) {
-  const locale = String(formData.get("locale") ?? "en");
-
   await requireAdminSession();
-  redirect(`/${locale}/dashboard/login`);
+  redirect(`/${getLocaleFromFormData(formData)}/dashboard/login`);
 }
 
 export async function createProjectAction(formData: FormData) {
   await requireAdminSession();
 
   const project = parseProjectFormData(formData);
-  const projects = await getAllProjects();
-
-  if (projects.some((item) => item.id === project.id)) {
-    throw new Error("A project with this ID already exists.");
-  }
-
   await createProject(project);
-  redirect(`/${String(formData.get("locale") ?? "en")}/dashboard`);
+  redirectToDashboard(formData);
 }
 
 export async function updateProjectAction(formData: FormData) {
@@ -112,14 +116,8 @@ export async function updateProjectAction(formData: FormData) {
 
   const currentId = String(formData.get("currentId") ?? "").trim();
   const project = parseProjectFormData(formData);
-  const projects = await getAllProjects();
-
-  if (projects.some((item) => item.id === project.id && item.id !== currentId)) {
-    throw new Error("A project with this ID already exists.");
-  }
-
   await updateProject(currentId, project);
-  redirect(`/${String(formData.get("locale") ?? "en")}/dashboard`);
+  redirectToDashboard(formData);
 }
 
 export async function deleteProjectAction(formData: FormData) {
@@ -127,27 +125,21 @@ export async function deleteProjectAction(formData: FormData) {
 
   const projectId = String(formData.get("projectId") ?? "").trim();
   await deleteProject(projectId);
-  redirect(`/${String(formData.get("locale") ?? "en")}/dashboard`);
+  redirectToDashboard(formData);
 }
 
 export async function updateAboutBioAction(formData: FormData) {
   await requireAdminSession();
   await updateAboutBio(parseAboutBioFormData(formData));
-  redirect(`/${String(formData.get("locale") ?? "en")}/dashboard/about`);
+  redirectToDashboard(formData, "/about");
 }
 
 export async function createAboutTechnologyAction(formData: FormData) {
   await requireAdminSession();
 
   const technology = parseAboutTechnologyFormData(formData);
-  const about = await getAboutContent();
-
-  if (about.technologies.some((item) => item.id === technology.id)) {
-    throw new Error("A technology with this ID already exists.");
-  }
-
   await createAboutTechnology(technology);
-  redirect(`/${String(formData.get("locale") ?? "en")}/dashboard/about`);
+  redirectToDashboard(formData, "/about");
 }
 
 export async function updateAboutTechnologyAction(formData: FormData) {
@@ -155,14 +147,8 @@ export async function updateAboutTechnologyAction(formData: FormData) {
 
   const currentId = String(formData.get("currentId") ?? "").trim();
   const technology = parseAboutTechnologyFormData(formData);
-  const about = await getAboutContent();
-
-  if (about.technologies.some((item) => item.id === technology.id && item.id !== currentId)) {
-    throw new Error("A technology with this ID already exists.");
-  }
-
   await updateAboutTechnology(currentId, technology);
-  redirect(`/${String(formData.get("locale") ?? "en")}/dashboard/about`);
+  redirectToDashboard(formData, "/about");
 }
 
 export async function deleteAboutTechnologyAction(formData: FormData) {
@@ -170,5 +156,5 @@ export async function deleteAboutTechnologyAction(formData: FormData) {
 
   const technologyId = String(formData.get("technologyId") ?? "").trim();
   await deleteAboutTechnology(technologyId);
-  redirect(`/${String(formData.get("locale") ?? "en")}/dashboard/about`);
+  redirectToDashboard(formData, "/about");
 }

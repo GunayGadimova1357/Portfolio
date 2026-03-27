@@ -1,14 +1,16 @@
 import {Link} from "@/i18n/navigation";
 import {getAboutContent} from "@/lib/about";
-import {getAllProjects} from "@/lib/projects";
+import {getAllProjects, getProjectStats} from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardOverviewPage() {
-  const [projects, about] = await Promise.all([getAllProjects(), getAboutContent()]);
-  const publishedProjects = projects.filter((project) => project.published);
+  const [projects, about, projectStats] = await Promise.all([
+    getAllProjects(),
+    getAboutContent(),
+    getProjectStats(),
+  ]);
   const latestProjects = projects.slice(0, 4);
-  const draftProjects = projects.filter((project) => !project.published);
 
   return (
     <>
@@ -34,17 +36,17 @@ export default async function DashboardOverviewPage() {
       <section className="grid gap-5 md:grid-cols-2 2xl:grid-cols-4">
         <OverviewMetric
           title="All projects"
-          value={String(projects.length)}
+          value={String(projectStats.totalCount)}
           description="Everything currently stored in portfolio data."
         />
         <OverviewMetric
           title="Published"
-          value={String(publishedProjects.length)}
+          value={String(projectStats.publishedCount)}
           description="Visible now on the public projects page."
         />
         <OverviewMetric
           title="Drafts"
-          value={String(draftProjects.length)}
+          value={String(projectStats.draftCount)}
           description="Private items that still need review or publishing."
         />
         <OverviewMetric

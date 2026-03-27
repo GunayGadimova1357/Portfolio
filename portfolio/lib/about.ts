@@ -88,12 +88,22 @@ export async function getAboutContent() {
   };
 }
 
+export async function assertTechnologyIdAvailable(technologyId: string, excludeTechnologyId?: string) {
+  const content = await readAboutContent();
+  const existingTechnology = content.technologies.find((technology) => technology.id === technologyId);
+
+  if (existingTechnology && existingTechnology.id !== excludeTechnologyId) {
+    throw new Error("A technology with this ID already exists.");
+  }
+}
+
 export async function updateAboutBio(nextBio: AboutBioRecord) {
   const collection = await ensureAboutSeeded();
   await collection.updateOne({_id: aboutDocumentId}, {$set: {bio: nextBio}});
 }
 
 export async function createAboutTechnology(technology: AboutTechnologyRecord) {
+  await assertTechnologyIdAvailable(technology.id);
   const content = await readAboutContent();
   content.technologies.push(technology);
 
@@ -108,6 +118,7 @@ export async function updateAboutTechnology(
   technologyId: string,
   nextTechnology: AboutTechnologyRecord,
 ) {
+  await assertTechnologyIdAvailable(nextTechnology.id, technologyId);
   const content = await readAboutContent();
   const index = content.technologies.findIndex((technology) => technology.id === technologyId);
 
