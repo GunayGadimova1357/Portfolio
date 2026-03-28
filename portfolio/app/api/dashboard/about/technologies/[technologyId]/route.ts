@@ -5,7 +5,7 @@ import {
 } from "@/lib/about";
 import {requireAdminSession} from "@/lib/auth";
 import {createDashboardErrorResponse} from "@/lib/dashboard/api-response";
-import {parseTechnologyPayload} from "@/lib/dashboard/about";
+import {parseTechnologyPayload} from "@/lib/dashboard/about-payload";
 
 export async function PUT(
   request: Request,

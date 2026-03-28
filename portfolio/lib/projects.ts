@@ -55,23 +55,6 @@ export async function assertProjectIdAvailable(projectId: string, excludeProject
   }
 }
 
-export async function searchProjects(query: string) {
-  const normalizedQuery = query.trim().toLowerCase();
-  const projects = await getAllProjects();
-
-  if (!normalizedQuery) {
-    return projects;
-  }
-
-  return projects.filter((project) => {
-    const haystack = [project.title, project.description, project.id, project.link]
-      .join(" ")
-      .toLowerCase();
-
-    return haystack.includes(normalizedQuery);
-  });
-}
-
 export async function getProjectStats() {
   const projects = await getAllProjects();
   const publishedCount = projects.filter((project) => project.published).length;

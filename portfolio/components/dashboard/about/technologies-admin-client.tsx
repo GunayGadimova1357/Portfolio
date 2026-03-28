@@ -6,7 +6,7 @@ import {DashboardField} from "@/components/dashboard/shared/form-fields";
 import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
 import {requestJson} from "@/lib/dashboard/client";
-import {createEmptyTechnology} from "@/lib/dashboard/about";
+import {createEmptyTechnology} from "@/lib/dashboard/about-payload";
 import type {AboutTechnologyRecord} from "@/lib/about";
 
 type TechnologyResponse = {technology: AboutTechnologyRecord};

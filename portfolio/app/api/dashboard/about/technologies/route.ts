@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {createAboutTechnology} from "@/lib/about";
 import {requireAdminSession} from "@/lib/auth";
 import {createDashboardErrorResponse} from "@/lib/dashboard/api-response";
-import {parseTechnologyPayload} from "@/lib/dashboard/about";
+import {parseTechnologyPayload} from "@/lib/dashboard/about-payload";
 
 export async function POST(request: Request) {
   try {

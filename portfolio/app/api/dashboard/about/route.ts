@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {requireAdminSession} from "@/lib/auth";
 import {getAboutContent, updateAboutBio} from "@/lib/about";
 import {createDashboardErrorResponse} from "@/lib/dashboard/api-response";
-import {parseAboutBioPayload} from "@/lib/dashboard/about";
+import {parseAboutBioPayload} from "@/lib/dashboard/about-payload";
 
 export async function GET() {
   try {
