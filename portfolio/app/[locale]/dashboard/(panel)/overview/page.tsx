@@ -26,7 +26,7 @@ export default async function DashboardOverviewPage() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <QuickLink href="/dashboard/create" label="New project" />
+            <QuickLink href="/dashboard/projects" label="Manage projects" />
             <QuickLink href="/dashboard/short-bio" label="Edit short bio" />
             <QuickLink href="/dashboard/technologies" label="Manage technologies" />
           </div>

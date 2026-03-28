@@ -1,19 +1,16 @@
 import {redirect} from "next/navigation";
-import {getServerSession} from "next-auth/next";
 import {
   CircleUserRound,
   FolderKanban,
   LayoutDashboard,
-  PlusSquare,
   Search,
   Sparkles,
   Zap,
   Wrench,
 } from "lucide-react";
-import {authOptions} from "@/auth";
 import {LogoutButton} from "@/components/dashboard/logout-button";
 import {SidebarNav} from "@/components/dashboard/sidebar-nav";
-import {getAdminEmail} from "@/lib/admin";
+import {getAdminSession} from "@/lib/auth";
 import {getProjectStats} from "@/lib/projects";
 
 export const dynamic = "force-dynamic";
@@ -26,9 +23,9 @@ export default async function DashboardPanelLayout({
   params: Promise<{locale: string}>;
 }) {
   const {locale} = await params;
-  const session = await getServerSession(authOptions);
+  const session = await getAdminSession();
 
-  if (session?.user?.email?.toLowerCase() !== getAdminEmail()) {
+  if (!session) {
     redirect(`/${locale}/dashboard/login`);
   }
 
@@ -39,11 +36,6 @@ export default async function DashboardPanelLayout({
       href: "/dashboard/overview",
       label: "Overview",
       icon: <Sparkles className="h-4 w-4" />,
-    },
-    {
-      href: "/dashboard/create",
-      label: "Create project",
-      icon: <PlusSquare className="h-4 w-4" />,
     },
     {
       href: "/dashboard/projects",

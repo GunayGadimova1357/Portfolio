@@ -21,6 +21,7 @@ export function DashboardField({
   rows?: number;
   onChange?: (value: string) => void;
 }) {
+  // Базовые props для всех текстовых полей dashboard.
   const sharedProps = {
     required,
     name,
@@ -28,7 +29,8 @@ export function DashboardField({
     className:
       "w-full rounded-2xl border border-white/12 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/28 focus:border-white/30",
   };
-  const valueProps = onChange
+  // Поддерживаем и controlled-поля через react-hook-form, и простые default values.
+  const fieldProps = onChange
     ? {
         value: value ?? "",
         onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -44,7 +46,7 @@ export function DashboardField({
       {multiline ? (
         <textarea
           {...sharedProps}
-          {...valueProps}
+          {...fieldProps}
           rows={rows}
           className="w-full resize-y rounded-2xl border border-white/12 bg-black/20 px-4 py-3 text-sm text-white outline-none transition-colors placeholder:text-white/28 focus:border-white/30"
         />
@@ -52,7 +54,7 @@ export function DashboardField({
         <input
           {...sharedProps}
           type={type}
-          {...valueProps}
+          {...fieldProps}
         />
       )}
     </label>
@@ -72,7 +74,8 @@ export function DashboardCheckbox({
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }) {
-  const checkedProps = onCheckedChange
+  // Чекбокс тоже может работать как controlled или uncontrolled input.
+  const checkboxProps = onCheckedChange
     ? {
         checked: checked ?? false,
         onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -87,7 +90,7 @@ export function DashboardCheckbox({
       <input
         type="checkbox"
         name={name}
-        {...checkedProps}
+        {...checkboxProps}
         className="h-4 w-4 accent-white"
       />
       <span>{label}</span>

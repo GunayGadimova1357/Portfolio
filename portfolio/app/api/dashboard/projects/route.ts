@@ -1,0 +1,26 @@
+import {NextResponse} from "next/server";
+import {requireAdminSession} from "@/lib/auth";
+import {createProject, getAllProjects} from "@/lib/projects";
+import {createDashboardErrorResponse} from "@/lib/dashboard/api-response";
+import {parseProjectPayload} from "@/lib/dashboard/projects";
+
+export async function GET() {
+  try {
+    await requireAdminSession();
+    return NextResponse.json({projects: await getAllProjects()});
+  } catch (error) {
+    return createDashboardErrorResponse(error);
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    await requireAdminSession();
+    const project = parseProjectPayload(await request.json());
+    await createProject(project);
+
+    return NextResponse.json({project}, {status: 201});
+  } catch (error) {
+    return createDashboardErrorResponse(error);
+  }
+}

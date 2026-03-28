@@ -1,5 +1,4 @@
 import type {NextAuthOptions} from "next-auth";
-import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
@@ -57,7 +56,3 @@ export const authOptions: NextAuthOptions = {
     signIn: "/en/dashboard/login",
   },
 };
-
-const handler = NextAuth(authOptions);
-
-export {handler};

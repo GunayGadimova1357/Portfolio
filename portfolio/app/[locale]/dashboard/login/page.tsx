@@ -1,7 +1,7 @@
 import {redirect} from "next/navigation";
 import Scene from "@/components/ui/Scene";
 import {LoginForm} from "@/components/dashboard/login-form";
-import {isAdminSession} from "@/lib/admin";
+import {isAdminSession} from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
