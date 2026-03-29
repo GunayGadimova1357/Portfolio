@@ -6,7 +6,7 @@ import {DashboardField} from "@/components/dashboard/shared/form-fields";
 import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
 import {requestJson} from "@/lib/dashboard/client";
-import type {AboutBioRecord} from "@/lib/about";
+import {parseAboutBio, type AboutBioRecord} from "@/lib/about-schema";
 
 type AboutResponse = {bio: AboutBioRecord};
 
@@ -27,7 +27,7 @@ export function AboutBioAdminClient({initialBio}: {initialBio: AboutBioRecord}) 
       const data = await requestJson<AboutResponse>("/api/dashboard/about", {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(bio),
+        body: JSON.stringify(parseAboutBio(bio)),
       });
 
       // После сохранения фиксируем актуальные данные как исходное состояние формы.

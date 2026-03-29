@@ -12,8 +12,11 @@ export async function PUT(
     await requireAdminSession();
     const {technologyId} = await params;
     const technology = parseTechnologyPayload(await request.json());
-    await updateAboutTechnology(technologyId, technology);
-    return NextResponse.json({technology});
+    const technologies = await updateAboutTechnology(technologyId, technology);
+    return NextResponse.json({
+      technology: technologies.find((item) => item.id === technology.id) ?? technology,
+      technologies,
+    });
   } catch (error) {
     return createDashboardErrorResponse(error);
   }
@@ -26,8 +29,8 @@ export async function DELETE(
   try {
     await requireAdminSession();
     const {technologyId} = await params;
-    await deleteAboutTechnology(technologyId);
-    return NextResponse.json({ok: true});
+    const technologies = await deleteAboutTechnology(technologyId);
+    return NextResponse.json({ok: true, technologies});
   } catch (error) {
     return createDashboardErrorResponse(error);
   }

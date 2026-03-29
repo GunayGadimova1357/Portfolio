@@ -8,9 +8,15 @@ export async function POST(request: NextRequest) {
   try {
     await requireAdminSession();
     const technology = parseTechnologyPayload(await request.json());
-    await createAboutTechnology(technology);
+    const technologies = await createAboutTechnology(technology);
 
-    return NextResponse.json({technology}, {status: 201});
+    return NextResponse.json(
+      {
+        technology: technologies.find((item) => item.id === technology.id) ?? technology,
+        technologies,
+      },
+      {status: 201},
+    );
   } catch (error) {
     return createDashboardErrorResponse(error);
   }

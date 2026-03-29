@@ -7,9 +7,17 @@ import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
 import {requestJson} from "@/lib/dashboard/client";
 import {createEmptyTechnology} from "@/lib/dashboard/about-payload";
-import type {AboutTechnologyRecord} from "@/lib/about";
+import {parseTechnology, type AboutTechnologyRecord} from "@/lib/about-schema";
 
-type TechnologyResponse = {technology: AboutTechnologyRecord};
+type TechnologyResponse = {
+  technology: AboutTechnologyRecord;
+  technologies: AboutTechnologyRecord[];
+};
+
+type DeleteTechnologyResponse = {
+  ok: true;
+  technologies: AboutTechnologyRecord[];
+};
 
 type TechnologyFormValues = {
   id: string;
@@ -53,23 +61,18 @@ function createFormValues(
   };
 }
 
-function toTechnology(values: TechnologyFormValues): AboutTechnologyRecord {
-  return {
-    id: values.id,
-    name: values.name,
-    href: values.href,
-    sortOrder: Number(values.sortOrder) || 0,
-    iconKeys: values.iconKeys
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean),
-    fallback: values.fallback.trim() || undefined,
-    color: values.color.trim() || undefined,
-  };
-}
-
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
+}
+
+function sortTechnologies(technologies: AboutTechnologyRecord[]) {
+  return [...technologies].sort((left, right) => {
+    if (left.sortOrder !== right.sortOrder) {
+      return left.sortOrder - right.sortOrder;
+    }
+
+    return left.name.localeCompare(right.name);
+  });
 }
 
 async function saveTechnology(values: TechnologyFormValues, technologyId?: string) {
@@ -80,7 +83,7 @@ async function saveTechnology(values: TechnologyFormValues, technologyId?: strin
     {
       method: technologyId ? "PUT" : "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(toTechnology(values)),
+      body: JSON.stringify(parseTechnology(values)),
     },
   );
 }
@@ -98,8 +101,8 @@ export function TechnologiesAdminClient({
 
   async function createTechnology(values: TechnologyFormValues) {
     try {
-      const {technology} = await saveTechnology(values);
-      setTechnologies((current) => [...current, technology]);
+      const {technology, technologies: nextTechnologies} = await saveTechnology(values);
+      setTechnologies(sortTechnologies(nextTechnologies));
       newTechnologyForm.reset(createFormValues());
       showStatus(`Added ${technology.name}.`);
     } catch (error) {
@@ -113,10 +116,13 @@ export function TechnologiesAdminClient({
     }
 
     try {
-      await requestJson<{ok: true}>(`/api/dashboard/about/technologies/${technologyId}`, {
-        method: "DELETE",
-      });
-      setTechnologies((current) => current.filter((technology) => technology.id !== technologyId));
+      const {technologies: nextTechnologies} = await requestJson<DeleteTechnologyResponse>(
+        `/api/dashboard/about/technologies/${technologyId}`,
+        {
+          method: "DELETE",
+        },
+      );
+      setTechnologies(sortTechnologies(nextTechnologies));
       showStatus("Technology deleted.");
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to delete technology."));
@@ -165,11 +171,7 @@ export function TechnologiesAdminClient({
           <TechnologyCard
             key={technology.id}
             technology={technology}
-            onSave={(nextTechnology) =>
-              setTechnologies((current) =>
-                current.map((item) => (item.id === technology.id ? nextTechnology : item)),
-              )
-            }
+            onSave={(nextTechnologies) => setTechnologies(nextTechnologies)}
             onDelete={removeTechnology}
             showStatus={showStatus}
           />
@@ -186,7 +188,7 @@ function TechnologyCard({
   showStatus,
 }: {
   technology: AboutTechnologyRecord;
-  onSave: (technology: AboutTechnologyRecord) => void;
+  onSave: (technologies: AboutTechnologyRecord[]) => void;
   onDelete: (technologyId: string) => Promise<void>;
   showStatus: (message: string) => void;
 }) {
@@ -198,8 +200,11 @@ function TechnologyCard({
 
   async function handleSave(values: TechnologyFormValues) {
     try {
-      const {technology: nextTechnology} = await saveTechnology(values, technology.id);
-      onSave(nextTechnology);
+      const {technology: nextTechnology, technologies: nextTechnologies} = await saveTechnology(
+        values,
+        technology.id,
+      );
+      onSave(sortTechnologies(nextTechnologies));
       form.reset(createFormValues(nextTechnology));
       showStatus(`Saved ${nextTechnology.name}.`);
     } catch (error) {

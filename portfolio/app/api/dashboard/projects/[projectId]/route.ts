@@ -12,8 +12,11 @@ export async function PUT(
     await requireAdminSession();
     const {projectId} = await params;
     const project = parseProjectPayload(await request.json());
-    await updateProject(projectId, project);
-    return NextResponse.json({project});
+    const projects = await updateProject(projectId, project);
+    return NextResponse.json({
+      project: projects.find((item) => item.id === project.id) ?? project,
+      projects,
+    });
   } catch (error) {
     return createDashboardErrorResponse(error);
   }
@@ -26,8 +29,8 @@ export async function DELETE(
   try {
     await requireAdminSession();
     const {projectId} = await params;
-    await deleteProject(projectId);
-    return NextResponse.json({ok: true});
+    const projects = await deleteProject(projectId);
+    return NextResponse.json({ok: true, projects});
   } catch (error) {
     return createDashboardErrorResponse(error);
   }

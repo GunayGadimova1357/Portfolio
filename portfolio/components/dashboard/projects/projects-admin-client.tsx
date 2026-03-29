@@ -7,9 +7,17 @@ import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
 import {requestJson} from "@/lib/dashboard/client";
 import {createEmptyProject} from "@/lib/dashboard/projects";
-import type {ProjectRecord} from "@/lib/projects";
+import {parseProject, type ProjectRecord} from "@/lib/project-schema";
 
-type ProjectResponse = {project: ProjectRecord};
+type ProjectResponse = {
+  project: ProjectRecord;
+  projects: ProjectRecord[];
+};
+
+type DeleteProjectResponse = {
+  ok: true;
+  projects: ProjectRecord[];
+};
 
 type ProjectFormValues = {
   id: string;
@@ -53,15 +61,14 @@ function createFormValues(project: ProjectRecord = createEmptyProject()): Projec
   };
 }
 
-function toProject(values: ProjectFormValues): ProjectRecord {
-  return {
-    ...values,
-    sortOrder: Number(values.sortOrder) || 0,
-  };
-}
-
 function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
+}
+
+function sortProjects(projects: ProjectRecord[]) {
+  return [...projects].sort(
+    (left, right) => left.sortOrder - right.sortOrder || left.title.localeCompare(right.title),
+  );
 }
 
 async function saveProject(values: ProjectFormValues, projectId?: string) {
@@ -70,7 +77,7 @@ async function saveProject(values: ProjectFormValues, projectId?: string) {
     {
       method: projectId ? "PUT" : "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(toProject(values)),
+      body: JSON.stringify(parseProject(values)),
     },
   );
 }
@@ -105,8 +112,8 @@ export function ProjectsAdminClient({
 
   async function createProject(values: ProjectFormValues) {
     try {
-      const {project} = await saveProject(values);
-      setProjects((current) => [...current, project]);
+      const {project, projects: nextProjects} = await saveProject(values);
+      setProjects(sortProjects(nextProjects));
       newProjectForm.reset(createFormValues());
       setShowNewProject(false);
       showStatus(`Created ${project.title}.`);
@@ -121,8 +128,11 @@ export function ProjectsAdminClient({
     }
 
     try {
-      await requestJson<{ok: true}>(`/api/dashboard/projects/${projectId}`, {method: "DELETE"});
-      setProjects((current) => current.filter((project) => project.id !== projectId));
+      const {projects: nextProjects} = await requestJson<DeleteProjectResponse>(
+        `/api/dashboard/projects/${projectId}`,
+        {method: "DELETE"},
+      );
+      setProjects(sortProjects(nextProjects));
       showStatus("Project deleted.");
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to delete project."));
@@ -194,11 +204,7 @@ export function ProjectsAdminClient({
             <ProjectCard
               key={project.id}
               project={project}
-              onSave={(nextProject) =>
-                setProjects((current) =>
-                  current.map((item) => (item.id === project.id ? nextProject : item)),
-                )
-              }
+              onSave={(nextProjects) => setProjects(nextProjects)}
               onDelete={removeProject}
               showStatus={showStatus}
             />
@@ -223,7 +229,7 @@ function ProjectCard({
   showStatus,
 }: {
   project: ProjectRecord;
-  onSave: (project: ProjectRecord) => void;
+  onSave: (projects: ProjectRecord[]) => void;
   onDelete: (projectId: string) => Promise<void>;
   showStatus: (message: string) => void;
 }) {
@@ -235,8 +241,8 @@ function ProjectCard({
 
   async function handleSave(values: ProjectFormValues) {
     try {
-      const {project: nextProject} = await saveProject(values, project.id);
-      onSave(nextProject);
+      const {project: nextProject, projects: nextProjects} = await saveProject(values, project.id);
+      onSave(sortProjects(nextProjects));
       form.reset(createFormValues(nextProject));
       showStatus(`Saved ${nextProject.title}.`);
     } catch (error) {

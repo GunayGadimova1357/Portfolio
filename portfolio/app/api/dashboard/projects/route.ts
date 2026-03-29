@@ -17,9 +17,15 @@ export async function POST(request: NextRequest) {
   try {
     await requireAdminSession();
     const project = parseProjectPayload(await request.json());
-    await createProject(project);
+    const projects = await createProject(project);
 
-    return NextResponse.json({project}, {status: 201});
+    return NextResponse.json(
+      {
+        project: projects.find((item) => item.id === project.id) ?? project,
+        projects,
+      },
+      {status: 201},
+    );
   } catch (error) {
     return createDashboardErrorResponse(error);
   }
