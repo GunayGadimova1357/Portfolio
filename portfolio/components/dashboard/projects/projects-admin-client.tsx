@@ -4,6 +4,8 @@ import {useEffect, useState} from "react";
 import {Control, Controller, useForm} from "react-hook-form";
 import {DashboardCheckbox, DashboardField} from "@/components/dashboard/shared/form-fields";
 import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
+import {getErrorMessage} from "@/components/dashboard/shared/error-message";
+import {DashboardStatusBadge} from "@/components/dashboard/shared/status-badge";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
 import {requestJson} from "@/lib/dashboard/client";
 import {createEmptyProject} from "@/lib/dashboard/projects";
@@ -59,10 +61,6 @@ function createFormValues(project: ProjectRecord = createEmptyProject()): Projec
     sortOrder: String(project.sortOrder),
     published: project.published,
   };
-}
-
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
 }
 
 function sortProjects(projects: ProjectRecord[]) {
@@ -167,13 +165,11 @@ export function ProjectsAdminClient({
 
           <div className="flex items-center gap-3 text-sm text-white/45">
             {status ? (
-              <span className="rounded-full border border-white/10 px-3 py-2 text-white/72">
-                {status}
-              </span>
+              <DashboardStatusBadge className="text-white/72">{status}</DashboardStatusBadge>
             ) : null}
-            <span className="rounded-full border border-white/10 px-3 py-2">
+            <DashboardStatusBadge className="text-inherit">
               {filteredProjects.length} result{filteredProjects.length === 1 ? "" : "s"}
-            </span>
+            </DashboardStatusBadge>
           </div>
         </div>
       </section>

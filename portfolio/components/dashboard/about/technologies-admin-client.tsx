@@ -4,6 +4,8 @@ import {useEffect, useState} from "react";
 import {Control, Controller, useForm} from "react-hook-form";
 import {DashboardField} from "@/components/dashboard/shared/form-fields";
 import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
+import {getErrorMessage} from "@/components/dashboard/shared/error-message";
+import {DashboardStatusBadge} from "@/components/dashboard/shared/status-badge";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
 import {requestJson} from "@/lib/dashboard/client";
 import {createEmptyTechnology} from "@/lib/dashboard/about-payload";
@@ -59,10 +61,6 @@ function createFormValues(
     fallback: technology.fallback ?? "",
     color: technology.color ?? "",
   };
-}
-
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
 }
 
 function sortTechnologies(technologies: AboutTechnologyRecord[]) {
@@ -135,13 +133,7 @@ export function TechnologiesAdminClient({
         eyebrow="About"
         title="Technologies"
         description="Manage the technology chips shown on the public about page."
-        action={
-          status ? (
-            <span className="rounded-full border border-white/10 px-3 py-2 text-sm text-white/72">
-              {status}
-            </span>
-          ) : null
-        }
+        action={status ? <DashboardStatusBadge>{status}</DashboardStatusBadge> : null}
       />
 
       <section className="rounded-[2rem] border border-white/10 bg-[#101015] p-6 md:p-8">

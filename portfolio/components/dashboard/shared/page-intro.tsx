@@ -10,7 +10,6 @@ export function DashboardPageIntro({
   action?: React.ReactNode;
 }) {
   return (
-    // Общая шапка dashboard-страниц, чтобы не повторять одинаковую разметку.
     <section className="rounded-[2rem] border border-white/10 bg-[#101015] p-6 md:p-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
