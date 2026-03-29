@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useState} from "react";
-import {Controller, useForm} from "react-hook-form";
+import {Control, Controller, useForm} from "react-hook-form";
 import {DashboardField} from "@/components/dashboard/shared/form-fields";
 import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
@@ -21,13 +21,27 @@ type TechnologyFormValues = {
   color: string;
 };
 
-// Даём единый текст ошибки для всех dashboard-мутаций.
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
-}
+type TechnologyFieldName = keyof TechnologyFormValues;
 
-// Преобразуем запись в строковые значения формы.
-function toTechnologyFormValues(technology: AboutTechnologyRecord): TechnologyFormValues {
+const technologyFields: Array<{
+  name: TechnologyFieldName;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+}> = [
+  {name: "id", label: "Technology ID"},
+  {name: "name", label: "Name"},
+  {name: "href", label: "GitHub link"},
+  {name: "sortOrder", label: "Sort order", type: "number"},
+  {name: "iconKeys", label: "Icon keys", placeholder: "react or html5,css", required: false},
+  {name: "fallback", label: "Fallback text", placeholder: "TS", required: false},
+  {name: "color", label: "Fallback color", placeholder: "#3178C6", required: false},
+];
+
+function createFormValues(
+  technology: AboutTechnologyRecord = createEmptyTechnology(),
+): TechnologyFormValues {
   return {
     id: technology.id,
     name: technology.name,
@@ -39,8 +53,7 @@ function toTechnologyFormValues(technology: AboutTechnologyRecord): TechnologyFo
   };
 }
 
-// Преобразуем форму обратно в формат, который ожидает API.
-function toTechnologyPayload(values: TechnologyFormValues): AboutTechnologyRecord {
+function toTechnology(values: TechnologyFormValues): AboutTechnologyRecord {
   return {
     id: values.id,
     name: values.name,
@@ -55,14 +68,20 @@ function toTechnologyPayload(values: TechnologyFormValues): AboutTechnologyRecor
   };
 }
 
-// Обновляем одну технологию в локальном списке по её предыдущему id.
-function replaceTechnology(
-  technologies: AboutTechnologyRecord[],
-  previousId: string,
-  nextTechnology: AboutTechnologyRecord,
-) {
-  return technologies.map((technology) =>
-    technology.id === previousId ? nextTechnology : technology,
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+async function saveTechnology(values: TechnologyFormValues, technologyId?: string) {
+  return requestJson<TechnologyResponse>(
+    technologyId
+      ? `/api/dashboard/about/technologies/${technologyId}`
+      : "/api/dashboard/about/technologies",
+    {
+      method: technologyId ? "PUT" : "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(toTechnology(values)),
+    },
   );
 }
 
@@ -71,25 +90,18 @@ export function TechnologiesAdminClient({
 }: {
   initialTechnologies: AboutTechnologyRecord[];
 }) {
-  // Локальное состояние нужно, чтобы UI обновлялся сразу после действий пользователя.
   const [technologies, setTechnologies] = useState(initialTechnologies);
   const {status, showStatus} = useStatusMessage();
-  // Отдельная форма используется только для создания новой технологии.
   const newTechnologyForm = useForm<TechnologyFormValues>({
-    defaultValues: toTechnologyFormValues(createEmptyTechnology()),
+    defaultValues: createFormValues(),
   });
 
   async function createTechnology(values: TechnologyFormValues) {
     try {
-      const data = await requestJson<TechnologyResponse>("/api/dashboard/about/technologies", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(toTechnologyPayload(values)),
-      });
-
-      setTechnologies((currentTechnologies) => [...currentTechnologies, data.technology]);
-      newTechnologyForm.reset(toTechnologyFormValues(createEmptyTechnology()));
-      showStatus(`Added ${data.technology.name}.`);
+      const {technology} = await saveTechnology(values);
+      setTechnologies((current) => [...current, technology]);
+      newTechnologyForm.reset(createFormValues());
+      showStatus(`Added ${technology.name}.`);
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to add technology."));
     }
@@ -104,10 +116,7 @@ export function TechnologiesAdminClient({
       await requestJson<{ok: true}>(`/api/dashboard/about/technologies/${technologyId}`, {
         method: "DELETE",
       });
-
-      setTechnologies((currentTechnologies) =>
-        currentTechnologies.filter((technology) => technology.id !== technologyId),
-      );
+      setTechnologies((current) => current.filter((technology) => technology.id !== technologyId));
       showStatus("Technology deleted.");
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to delete technology."));
@@ -157,8 +166,8 @@ export function TechnologiesAdminClient({
             key={technology.id}
             technology={technology}
             onSave={(nextTechnology) =>
-              setTechnologies((currentTechnologies) =>
-                replaceTechnology(currentTechnologies, technology.id, nextTechnology),
+              setTechnologies((current) =>
+                current.map((item) => (item.id === technology.id ? nextTechnology : item)),
               )
             }
             onDelete={removeTechnology}
@@ -181,30 +190,18 @@ function TechnologyCard({
   onDelete: (technologyId: string) => Promise<void>;
   showStatus: (message: string) => void;
 }) {
-  // Каждая карточка хранит собственное состояние формы для независимого редактирования.
-  const form = useForm<TechnologyFormValues>({
-    defaultValues: toTechnologyFormValues(technology),
-  });
+  const form = useForm<TechnologyFormValues>({defaultValues: createFormValues(technology)});
 
   useEffect(() => {
-    // После save подтягиваем свежие значения в форму.
-    form.reset(toTechnologyFormValues(technology));
+    form.reset(createFormValues(technology));
   }, [form, technology]);
 
-  async function saveTechnology(values: TechnologyFormValues) {
+  async function handleSave(values: TechnologyFormValues) {
     try {
-      const data = await requestJson<TechnologyResponse>(
-        `/api/dashboard/about/technologies/${technology.id}`,
-        {
-          method: "PUT",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(toTechnologyPayload(values)),
-        },
-      );
-
-      onSave(data.technology);
-      form.reset(toTechnologyFormValues(data.technology));
-      showStatus(`Saved ${data.technology.name}.`);
+      const {technology: nextTechnology} = await saveTechnology(values, technology.id);
+      onSave(nextTechnology);
+      form.reset(createFormValues(nextTechnology));
+      showStatus(`Saved ${nextTechnology.name}.`);
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to save technology."));
     }
@@ -222,7 +219,7 @@ function TechnologyCard({
         </span>
       </div>
 
-      <form onSubmit={form.handleSubmit(saveTechnology)}>
+      <form onSubmit={form.handleSubmit(handleSave)}>
         <TechnologyEditor control={form.control} namePrefix={technology.id} />
 
         <div className="mt-5 flex gap-3">
@@ -249,103 +246,29 @@ function TechnologyEditor({
   control,
   namePrefix,
 }: {
-  control: ReturnType<typeof useForm<TechnologyFormValues>>["control"];
+  control: Control<TechnologyFormValues>;
   namePrefix: string;
 }) {
   return (
-    // Один редактор полей используется и для create, и для edit.
     <div className="grid gap-4 md:grid-cols-2">
-      <Controller
-        name="id"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Technology ID"
-            name={`${namePrefix}-id`}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="name"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Name"
-            name={`${namePrefix}-name`}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="href"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="GitHub link"
-            name={`${namePrefix}-href`}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="sortOrder"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Sort order"
-            name={`${namePrefix}-sort-order`}
-            type="number"
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="iconKeys"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Icon keys"
-            name={`${namePrefix}-icon-keys`}
-            value={field.value}
-            placeholder="react or html5,css"
-            required={false}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="fallback"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Fallback text"
-            name={`${namePrefix}-fallback`}
-            value={field.value}
-            placeholder="TS"
-            required={false}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="color"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Fallback color"
-            name={`${namePrefix}-color`}
-            value={field.value}
-            placeholder="#3178C6"
-            required={false}
-            onChange={field.onChange}
-          />
-        )}
-      />
+      {technologyFields.map(({name, label, type, placeholder, required}) => (
+        <Controller
+          key={name}
+          name={name}
+          control={control}
+          render={({field}) => (
+            <DashboardField
+              label={label}
+              name={`${namePrefix}-${name}`}
+              type={type}
+              value={field.value}
+              placeholder={placeholder}
+              required={required}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      ))}
     </div>
   );
 }

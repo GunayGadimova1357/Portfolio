@@ -12,26 +12,29 @@ export type ProjectRecord = {
   published: boolean;
 };
 
-const projectsCollectionName = "projects";
-const projectsProjection = {_id: 0} as const;
+const projection = {_id: 0} as const;
 
-async function getProjectsCollection() {
-  return (await getDatabase()).collection<ProjectRecord>(projectsCollectionName);
-}
-
-async function findProjects(filter: Filter<ProjectRecord> = {}) {
-  const collection = await getProjectsCollection();
-  return collection.find(filter, {projection: projectsProjection}).toArray();
+async function getCollection() {
+  return (await getDatabase()).collection<ProjectRecord>("projects");
 }
 
 function sortProjects(projects: ProjectRecord[]) {
-  return [...projects].sort((left, right) => {
-    if (left.sortOrder !== right.sortOrder) {
-      return left.sortOrder - right.sortOrder;
-    }
+  return [...projects].sort(
+    (left, right) =>
+      left.sortOrder - right.sortOrder || left.title.localeCompare(right.title),
+  );
+}
 
-    return left.title.localeCompare(right.title);
-  });
+async function findProjects(filter: Filter<ProjectRecord> = {}) {
+  return (await getCollection()).find(filter, {projection}).toArray();
+}
+
+async function requireAvailableId(projectId: string, excludeProjectId?: string) {
+  const existingProject = await getProjectById(projectId);
+
+  if (existingProject && existingProject.id !== excludeProjectId) {
+    throw new Error("A project with this ID already exists.");
+  }
 }
 
 export async function getAllProjects() {
@@ -43,16 +46,11 @@ export async function getPublishedProjects() {
 }
 
 export async function getProjectById(projectId: string) {
-  const collection = await getProjectsCollection();
-  return collection.findOne({id: projectId}, {projection: projectsProjection});
+  return (await getCollection()).findOne({id: projectId}, {projection});
 }
 
 export async function assertProjectIdAvailable(projectId: string, excludeProjectId?: string) {
-  const existingProject = await getProjectById(projectId);
-
-  if (existingProject && existingProject.id !== excludeProjectId) {
-    throw new Error("A project with this ID already exists.");
-  }
+  await requireAvailableId(projectId, excludeProjectId);
 }
 
 export async function getProjectStats() {
@@ -67,26 +65,23 @@ export async function getProjectStats() {
 }
 
 export async function createProject(project: ProjectRecord) {
-  await assertProjectIdAvailable(project.id);
-  const collection = await getProjectsCollection();
-  await collection.insertOne(project);
+  await requireAvailableId(project.id);
+  await (await getCollection()).insertOne(project);
 }
 
 export async function updateProject(projectId: string, nextProject: ProjectRecord) {
-  await assertProjectIdAvailable(nextProject.id, projectId);
-  const collection = await getProjectsCollection();
-  const result = await collection.updateOne({id: projectId}, {$set: nextProject});
+  await requireAvailableId(nextProject.id, projectId);
+  const result = await (await getCollection()).updateOne({id: projectId}, {$set: nextProject});
 
-  if (result.matchedCount === 0) {
+  if (!result.matchedCount) {
     throw new Error("Project not found.");
   }
 }
 
 export async function deleteProject(projectId: string) {
-  const collection = await getProjectsCollection();
-  const result = await collection.deleteOne({id: projectId});
+  const result = await (await getCollection()).deleteOne({id: projectId});
 
-  if (result.deletedCount === 0) {
+  if (!result.deletedCount) {
     throw new Error("Project not found.");
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import {useEffect, useState} from "react";
-import {Controller, useForm} from "react-hook-form";
+import {Control, Controller, useForm} from "react-hook-form";
 import {DashboardCheckbox, DashboardField} from "@/components/dashboard/shared/form-fields";
 import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
 import {useStatusMessage} from "@/components/dashboard/shared/use-status-message";
@@ -22,13 +22,25 @@ type ProjectFormValues = {
   published: boolean;
 };
 
-// Даём единый текст ошибки для операций dashboard.
-function getErrorMessage(error: unknown, fallback: string) {
-  return error instanceof Error ? error.message : fallback;
-}
+type ProjectFieldName = Exclude<keyof ProjectFormValues, "published">;
 
-// Преобразуем запись проекта в строковые значения формы.
-function toProjectFormValues(project: ProjectRecord): ProjectFormValues {
+const projectFields: Array<{
+  name: ProjectFieldName;
+  label: string;
+  type?: string;
+  multiline?: boolean;
+  wide?: boolean;
+}> = [
+  {name: "id", label: "Project ID"},
+  {name: "title", label: "Title"},
+  {name: "description", label: "Description", multiline: true, wide: true},
+  {name: "link", label: "Project link"},
+  {name: "thumbnail", label: "Thumbnail path"},
+  {name: "alt", label: "Image alt text"},
+  {name: "sortOrder", label: "Display order", type: "number"},
+];
+
+function createFormValues(project: ProjectRecord = createEmptyProject()): ProjectFormValues {
   return {
     id: project.id,
     title: project.title,
@@ -41,21 +53,28 @@ function toProjectFormValues(project: ProjectRecord): ProjectFormValues {
   };
 }
 
-// Преобразуем данные формы обратно в формат API.
-function toProjectPayload(values: ProjectFormValues): ProjectRecord {
+function toProject(values: ProjectFormValues): ProjectRecord {
   return {
-    id: values.id,
-    title: values.title,
-    description: values.description,
-    link: values.link,
-    thumbnail: values.thumbnail,
-    alt: values.alt,
+    ...values,
     sortOrder: Number(values.sortOrder) || 0,
-    published: values.published,
   };
 }
 
-// Фильтрация простая, поэтому отдельная функция читается лучше, чем useMemo.
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+async function saveProject(values: ProjectFormValues, projectId?: string) {
+  return requestJson<ProjectResponse>(
+    projectId ? `/api/dashboard/projects/${projectId}` : "/api/dashboard/projects",
+    {
+      method: projectId ? "PUT" : "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(toProject(values)),
+    },
+  );
+}
+
 function filterProjects(projects: ProjectRecord[], query: string) {
   const normalizedQuery = query.trim().toLowerCase();
 
@@ -64,27 +83,9 @@ function filterProjects(projects: ProjectRecord[], query: string) {
   }
 
   return projects.filter((project) =>
-    [project.id, project.title, project.description, project.link]
-      .join(" ")
+    `${project.id} ${project.title} ${project.description} ${project.link}`
       .toLowerCase()
       .includes(normalizedQuery),
-  );
-}
-
-// Обновляем один проект в списке по предыдущему id.
-function replaceProject(projects: ProjectRecord[], previousId: string, nextProject: ProjectRecord) {
-  return projects.map((project) => (project.id === previousId ? nextProject : project));
-}
-
-// Один helper закрывает и create, и update запросы.
-async function saveProjectRequest(values: ProjectFormValues, projectId?: string) {
-  return requestJson<ProjectResponse>(
-    projectId ? `/api/dashboard/projects/${projectId}` : "/api/dashboard/projects",
-    {
-      method: projectId ? "PUT" : "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(toProjectPayload(values)),
-    },
   );
 }
 
@@ -95,25 +96,20 @@ export function ProjectsAdminClient({
   initialProjects: ProjectRecord[];
   initialQuery?: string;
 }) {
-  // Локальный список нужен для мгновенных обновлений без reload.
   const [projects, setProjects] = useState(initialProjects);
   const [query, setQuery] = useState(initialQuery);
   const [showNewProject, setShowNewProject] = useState(false);
   const {status, showStatus} = useStatusMessage();
-  // Эта форма отвечает только за создание нового проекта.
-  const newProjectForm = useForm<ProjectFormValues>({
-    defaultValues: toProjectFormValues(createEmptyProject()),
-  });
+  const newProjectForm = useForm<ProjectFormValues>({defaultValues: createFormValues()});
   const filteredProjects = filterProjects(projects, query);
 
   async function createProject(values: ProjectFormValues) {
     try {
-      const data = await saveProjectRequest(values);
-
-      setProjects((currentProjects) => [...currentProjects, data.project]);
-      newProjectForm.reset(toProjectFormValues(createEmptyProject()));
+      const {project} = await saveProject(values);
+      setProjects((current) => [...current, project]);
+      newProjectForm.reset(createFormValues());
       setShowNewProject(false);
-      showStatus(`Created ${data.project.title}.`);
+      showStatus(`Created ${project.title}.`);
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to create project."));
     }
@@ -125,11 +121,8 @@ export function ProjectsAdminClient({
     }
 
     try {
-      await requestJson<{ok: true}>(`/api/dashboard/projects/${projectId}`, {
-        method: "DELETE",
-      });
-
-      setProjects((currentProjects) => currentProjects.filter((project) => project.id !== projectId));
+      await requestJson<{ok: true}>(`/api/dashboard/projects/${projectId}`, {method: "DELETE"});
+      setProjects((current) => current.filter((project) => project.id !== projectId));
       showStatus("Project deleted.");
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to delete project."));
@@ -142,15 +135,13 @@ export function ProjectsAdminClient({
         title="Projects"
         description="Manage your portfolio projects from one place with inline editing, quick saves and no page reloads."
         action={
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setShowNewProject((current) => !current)}
-              className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white px-5 py-3 text-sm font-medium text-black transition-opacity hover:opacity-90"
-            >
-              {showNewProject ? "Close new project" : "New project"}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowNewProject((current) => !current)}
+            className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white px-5 py-3 text-sm font-medium text-black transition-opacity hover:opacity-90"
+          >
+            {showNewProject ? "Close new project" : "New project"}
+          </button>
         }
       />
 
@@ -197,15 +188,15 @@ export function ProjectsAdminClient({
         </section>
       ) : null}
 
-      {filteredProjects.length > 0 ? (
+      {filteredProjects.length ? (
         <section className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
           {filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
               onSave={(nextProject) =>
-                setProjects((currentProjects) =>
-                  replaceProject(currentProjects, project.id, nextProject),
+                setProjects((current) =>
+                  current.map((item) => (item.id === project.id ? nextProject : item)),
                 )
               }
               onDelete={removeProject}
@@ -236,23 +227,18 @@ function ProjectCard({
   onDelete: (projectId: string) => Promise<void>;
   showStatus: (message: string) => void;
 }) {
-  // Каждая карточка имеет собственную форму, чтобы правки не влияли на соседние карточки.
-  const form = useForm<ProjectFormValues>({
-    defaultValues: toProjectFormValues(project),
-  });
+  const form = useForm<ProjectFormValues>({defaultValues: createFormValues(project)});
 
   useEffect(() => {
-    // После успешного save или серверного обновления синхронизируем форму с актуальным проектом.
-    form.reset(toProjectFormValues(project));
+    form.reset(createFormValues(project));
   }, [form, project]);
 
-  async function saveProject(values: ProjectFormValues) {
+  async function handleSave(values: ProjectFormValues) {
     try {
-      const data = await saveProjectRequest(values, project.id);
-
-      onSave(data.project);
-      form.reset(toProjectFormValues(data.project));
-      showStatus(`Saved ${data.project.title}.`);
+      const {project: nextProject} = await saveProject(values, project.id);
+      onSave(nextProject);
+      form.reset(createFormValues(nextProject));
+      showStatus(`Saved ${nextProject.title}.`);
     } catch (error) {
       showStatus(getErrorMessage(error, "Failed to save project."));
     }
@@ -289,7 +275,7 @@ function ProjectCard({
           <p className="mt-2 text-sm text-white/42">{project.id}</p>
         </div>
 
-        <form onSubmit={form.handleSubmit(saveProject)} className="mt-5">
+        <form onSubmit={form.handleSubmit(handleSave)} className="mt-5">
           <ProjectEditor control={form.control} namePrefix={project.id} />
 
           <div className="mt-5 flex gap-3">
@@ -317,100 +303,30 @@ function ProjectEditor({
   control,
   namePrefix,
 }: {
-  control: ReturnType<typeof useForm<ProjectFormValues>>["control"];
+  control: Control<ProjectFormValues>;
   namePrefix: string;
 }) {
   return (
-    // Один редактор полей переиспользуется и в create-форме, и в карточках редактирования.
     <div className="grid gap-4 md:grid-cols-2">
-      <Controller
-        name="id"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Project ID"
-            name={`${namePrefix}-id`}
-            value={field.value}
-            onChange={field.onChange}
+      {projectFields.map(({name, label, type, multiline, wide}) => (
+        <div key={name} className={wide ? "md:col-span-2" : undefined}>
+          <Controller
+            name={name}
+            control={control}
+            render={({field}) => (
+              <DashboardField
+                label={label}
+                name={`${namePrefix}-${name}`}
+                type={type}
+                multiline={multiline}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
           />
-        )}
-      />
-      <Controller
-        name="title"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Title"
-            name={`${namePrefix}-title`}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <div className="md:col-span-2">
-        <Controller
-          name="description"
-          control={control}
-          render={({field}) => (
-            <DashboardField
-              label="Description"
-              name={`${namePrefix}-description`}
-              value={field.value}
-              onChange={field.onChange}
-              multiline
-            />
-          )}
-        />
-      </div>
-      <Controller
-        name="link"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Project link"
-            name={`${namePrefix}-link`}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="thumbnail"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Thumbnail path"
-            name={`${namePrefix}-thumbnail`}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="alt"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Image alt text"
-            name={`${namePrefix}-alt`}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
-      <Controller
-        name="sortOrder"
-        control={control}
-        render={({field}) => (
-          <DashboardField
-            label="Display order"
-            name={`${namePrefix}-sort-order`}
-            type="number"
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
+        </div>
+      ))}
+
       <div className="md:col-span-2">
         <Controller
           name="published"

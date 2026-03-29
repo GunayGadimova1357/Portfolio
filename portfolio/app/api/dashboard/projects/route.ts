@@ -1,4 +1,4 @@
-import {NextResponse} from "next/server";
+import {NextRequest, NextResponse} from "next/server";
 import {requireAdminSession} from "@/lib/auth";
 import {createProject, getAllProjects} from "@/lib/projects";
 import {createDashboardErrorResponse} from "@/lib/dashboard/api-response";
@@ -13,7 +13,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     await requireAdminSession();
     const project = parseProjectPayload(await request.json());

@@ -1,4 +1,4 @@
-import {NextResponse} from "next/server";
+import {NextRequest, NextResponse} from "next/server";
 import {requireAdminSession} from "@/lib/auth";
 import {getAboutContent, updateAboutBio} from "@/lib/about";
 import {createDashboardErrorResponse} from "@/lib/dashboard/api-response";
@@ -15,7 +15,7 @@ export async function GET() {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
     await requireAdminSession();
     const bio = parseAboutBioPayload(await request.json());
