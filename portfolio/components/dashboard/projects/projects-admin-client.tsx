@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import {type ChangeEvent, useEffect, useState} from "react";
 import {Control, Controller, useForm} from "react-hook-form";
 import {DashboardCheckbox, DashboardField} from "@/components/dashboard/shared/form-fields";
 import {DashboardPageIntro} from "@/components/dashboard/shared/page-intro";
@@ -45,7 +45,6 @@ const projectFields: Array<{
   {name: "title", label: "Title"},
   {name: "description", label: "Description", multiline: true, wide: true},
   {name: "link", label: "Project link"},
-  {name: "thumbnail", label: "Thumbnail path"},
   {name: "alt", label: "Image alt text"},
   {name: "sortOrder", label: "Display order", type: "number"},
 ];
@@ -78,6 +77,24 @@ async function saveProject(values: ProjectFormValues, projectId?: string) {
       body: JSON.stringify(parseProject(values)),
     },
   );
+}
+
+async function uploadProjectThumbnail(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("/api/dashboard/projects/thumbnail", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = (await response.json()) as {path?: string; error?: string};
+
+  if (!response.ok || !data.path) {
+    throw new Error(data.error ?? "Failed to upload image.");
+  }
+
+  return data.path;
 }
 
 function filterProjects(projects: ProjectRecord[], query: string) {
@@ -331,6 +348,20 @@ function ProjectEditor({
 
       <div className="md:col-span-2">
         <Controller
+          name="thumbnail"
+          control={control}
+          render={({field}) => (
+            <ThumbnailUploadField
+              name={`${namePrefix}-thumbnail`}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
+
+      <div className="md:col-span-2">
+        <Controller
           name="published"
           control={control}
           render={({field}) => (
@@ -344,5 +375,79 @@ function ProjectEditor({
         />
       </div>
     </div>
+  );
+}
+
+function ThumbnailUploadField({
+  name,
+  value,
+  onChange,
+}: {
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setUploadError(null);
+    setIsUploading(true);
+
+    try {
+      const path = await uploadProjectThumbnail(file);
+      onChange(path);
+    } catch (error) {
+      setUploadError(getErrorMessage(error, "Failed to upload image."));
+    } finally {
+      setIsUploading(false);
+      event.target.value = "";
+    }
+  }
+
+  return (
+    <label className="block space-y-2 md:col-span-2">
+      <span className="text-sm font-medium text-white/72">Project thumbnail</span>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/20 p-3 sm:flex-row sm:items-center">
+        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+          {value ? (
+            <div
+              className="h-full w-full bg-cover bg-center"
+              style={{backgroundImage: `url(${value})`}}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-[11px] text-white/35">
+              No image
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1 space-y-2">
+          <input
+            name={name}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/avif"
+            onChange={(event) => void handleFileChange(event)}
+            className="block w-full rounded-xl border border-white/12 bg-black/20 px-3 py-2.5 text-sm text-white file:mr-3 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-black"
+          />
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/45">
+            <span>PNG, JPG, WebP, AVIF</span>
+            <span>max 5 MB</span>
+            {isUploading ? <span className="text-white/65">Uploading...</span> : null}
+          </div>
+
+          {value ? <p className="truncate text-xs text-white/55">{value}</p> : null}
+          {uploadError ? <p className="text-sm text-red-300">{uploadError}</p> : null}
+        </div>
+      </div>
+    </label>
   );
 }
